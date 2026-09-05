@@ -53,6 +53,34 @@
         .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
         .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
 
+        /* ✅ BACK TO MAIN PAGE BUTTON (TOP RIGHT) */
+        .back-to-main-btn {
+            position: fixed;
+            top: calc(var(--nav-height) + 15px);
+            right: 5%;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 900;
+        }
+        .back-to-main-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .back-to-main-btn i { font-size: 0.85rem; }
+
         /* ✅ GAME CONTAINER STYLES */
         .game-wrapper {
             display: flex;
@@ -107,36 +135,62 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem; /* Size of chess pieces */
+            font-size: 2.8rem; /* Large size for clear visibility */
             cursor: pointer;
             position: relative;
+            line-height: 1;
         }
 
-        /* Board Colors */
-        .square.light { background: #e8dcc4; color: #0a1628; }
-        .square.dark { background: #4a3c31; color: #e8dcc4; }
+        /* Board Colors - Matching the image provided exactly */
+        .square.light { background: #e8dcc4; }
+        .square.dark { background: #5d4037; }
 
         /* Highlights */
-        .square.selected { background: rgba(212, 175, 55, 0.6) !important; }
+        .square.selected { background: rgba(212, 175, 55, 0.7) !important; }
         .square.valid-move::after {
             content: '';
             position: absolute;
-            width: 20%;
-            height: 20%;
-            background: rgba(212, 175, 55, 0.8);
+            width: 25%;
+            height: 25%;
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 50%;
-            box-shadow: 0 0 5px var(--accent);
         }
-        .square.capture-move { background: rgba(239, 68, 68, 0.4) !important; }
+        .square.capture-move { 
+            background: rgba(239, 68, 68, 0.5) !important; 
+        }
+        .square.capture-move::after {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border: 4px solid rgba(239, 68, 68, 0.8);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
 
-        /* Piece Styling */
+        /* Piece Styling - Using Standard Unicode Chess Symbols */
         .piece {
             z-index: 2;
-            transition: transform 0.2s;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+            transition: transform 0.1s;
+            /* Ensure pieces are centered */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
         }
-        .piece.white { color: #fff; text-shadow: 0 0 2px #000; }
-        .piece.black { color: #111; text-shadow: 0 0 2px #fff; }
+        
+        /* White Pieces: Solid White with subtle shadow */
+        .piece.white { 
+            color: #ffffff; 
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+        
+        /* Black Pieces: Solid Black/Dark Grey with subtle highlight */
+        .piece.black { 
+            color: #1a1a1a; 
+            text-shadow: 0 0 2px rgba(255,255,255,0.3);
+        }
 
         /* ✅ ACTION BUTTON */
         .action-btn {
@@ -155,7 +209,7 @@
         #overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 22, 40, 0.9);
+            background: rgba(10, 22, 40, 0.95);
             display: none;
             flex-direction: column;
             align-items: center;
@@ -179,23 +233,36 @@
             .nav-links { display: none; } .mobile-menu-btn { display: block; }
             .game-header h1 { font-size: 1.4rem; } 
             .game-wrapper { max-width: 95%; }
-            .square { font-size: 1.8rem; }
+            .square { font-size: 2rem; }
+            .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ✅ NAVIGATION BAR -->
+    <!-- ✅ NAVIGATION BAR WITH FULL LINKS -->
     <nav>
         <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
-            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="Logo"><span>Home</span>
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
         </a>
         <ul class="nav-links">
+            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
+            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
+            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
+            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
             <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
             <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
         </ul>
         <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
     </nav>
+
+    <!-- ✅ BACK TO MAIN PAGE BUTTON (TOP RIGHT) -->
+    <a href="https://sbmousavices.github.io/Community-Hub/game-index.html" class="back-to-main-btn">
+        <i class="fas fa-arrow-left"></i> Back to Main Page
+    </a>
 
     <!-- ✅ GAME AREA -->
     <div class="game-wrapper">
@@ -236,23 +303,25 @@
         const restartBtn = document.getElementById('restartBtn');
         const playAgainBtn = document.getElementById('playAgainBtn');
 
-        // Unicode Chess Pieces
+        // ✅ STANDARD UNICODE CHESS PIECES
         const PIECES = {
             w: { k: '♔', q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' },
-            b: { k: '', q: '♛', r: '', b: '♝', n: '', p: '♟' }
+            b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }
         };
 
-        // Initial Board Setup (Standard Chess)
-        // lowercase = black, UPPERCASE = white
+        // Piece Values for AI
+        const PIECE_VALUES = { 'p': 10, 'n': 30, 'b': 30, 'r': 50, 'q': 90, 'k': 900 };
+
+        // ✅ CORRECT INITIAL BOARD SETUP
         const INITIAL_BOARD = [
-            ['r','n','b','q','k','b','n','r'],
-            ['p','p','p','p','p','p','p','p'],
-            ['','','','','','','',''],
-            ['','','','','','','',''],
-            ['','','','','','','',''],
-            ['','','','','','','',''],
-            ['P','P','P','P','P','P','P','P'],
-            ['R','N','B','Q','K','B','N','R']
+            ['r','n','b','q','k','b','n','r'], // 0: Black Major
+            ['p','p','p','p','p','p','p','p'], // 1: Black Pawns
+            ['','','','','','','',''],         // 2
+            ['','','','','','','',''],         // 3
+            ['','','','','','','',''],         // 4
+            ['','','','','','','',''],         // 5
+            ['P','P','P','P','P','P','P','P'], // 6: White Pawns
+            ['R','N','B','Q','K','B','N','R']  // 7: White Major
         ];
 
         let board = [];
@@ -269,6 +338,7 @@
             validMoves = [];
             isGameOver = false;
             isProcessing = false;
+            
             overlay.classList.remove('active');
             updateStatus();
             renderBoard();
@@ -288,19 +358,16 @@
                     sq.dataset.r = r;
                     sq.dataset.c = c;
 
-                    // Highlight Selected
                     if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) {
                         sq.classList.add('selected');
                     }
 
-                    // Highlight Valid Moves
                     const move = validMoves.find(m => m.r === r && m.c === c);
                     if (move) {
                         if (board[r][c]) sq.classList.add('capture-move');
                         else sq.classList.add('valid-move');
                     }
 
-                    // Render Piece
                     const pieceChar = board[r][c];
                     if (pieceChar) {
                         const color = getPieceColor(pieceChar);
@@ -323,20 +390,17 @@
             const clickedPiece = board[r][c];
             const clickedColor = getPieceColor(clickedPiece);
 
-            // If clicking a valid move destination
             const move = validMoves.find(m => m.r === r && m.c === c);
             if (move) {
                 executeMove(selectedSquare, {r, c});
                 return;
             }
 
-            // Select own piece
             if (clickedColor === 'w') {
                 selectedSquare = {r, c};
                 calculateValidMoves(r, c, 'w');
                 renderBoard();
             } else {
-                // Deselect if clicking empty or enemy
                 selectedSquare = null;
                 validMoves = [];
                 renderBoard();
@@ -360,25 +424,22 @@
                     const targetColor = getPieceColor(target);
                     if (!target || targetColor !== color) {
                         validMoves.push({r: nr, c: nc});
-                        return !!target; // Return true if hit piece (stop sliding)
+                        return !!target;
                     }
                 }
-                return true; // Stop if out of bounds or own piece
+                return true;
             };
 
             if (piece === 'p') {
                 const dir = color === 'w' ? -1 : 1;
                 const startRow = color === 'w' ? 6 : 1;
                 
-                // Move forward 1
                 if (!board[r+dir][c]) {
                     validMoves.push({r: r+dir, c: c});
-                    // Move forward 2
                     if (r === startRow && !board[r+(dir*2)][c]) {
                         validMoves.push({r: r+(dir*2), c: c});
                     }
                 }
-                // Captures
                 [[dir, -1], [dir, 1]].forEach(([dr, dc]) => {
                     const nr = r+dr, nc = c+dc;
                     if (nr>=0 && nr<8 && nc>=0 && nc<8) {
@@ -410,11 +471,9 @@
         }
 
         function executeMove(from, to) {
-            // Move piece
             board[to.r][to.c] = board[from.r][from.c];
             board[from.r][from.c] = '';
 
-            // Pawn Promotion (Simple: Auto Queen)
             if (board[to.r][to.c] === 'P' && to.r === 0) board[to.r][to.c] = 'Q';
             if (board[to.r][to.c] === 'p' && to.r === 7) board[to.r][to.c] = 'q';
 
@@ -424,13 +483,11 @@
             updateStatus();
             renderBoard();
 
-            // Check Win Condition (King Capture - Simplified)
             if (isKingCaptured()) {
-                endGame(currentPlayer === 'w' ? 'b' : 'w'); // Previous player won
+                endGame(currentPlayer === 'w' ? 'b' : 'w');
                 return;
             }
 
-            // CPU Turn
             if (currentPlayer === 'b' && !isGameOver) {
                 isProcessing = true;
                 setTimeout(cpuMove, 800);
@@ -449,43 +506,53 @@
         }
 
         function cpuMove() {
-            // Simple AI: Find all valid moves, prioritize captures
-            let allMoves = [];
-            for(let r=0; r<8; r++) {
-                for(let c=0; c<8; c++) {
-                    if(getPieceColor(board[r][c]) === 'b') {
-                        calculateValidMoves(r, c, 'b');
-                        validMoves.forEach(m => {
-                            allMoves.push({from: {r,c}, to: m, capture: !!board[m.r][m.c]});
-                        });
+            try {
+                let allMoves = [];
+                for(let r=0; r<8; r++) {
+                    for(let c=0; c<8; c++) {
+                        if(getPieceColor(board[r][c]) === 'b') {
+                            calculateValidMoves(r, c, 'b');
+                            validMoves.forEach(m => {
+                                let score = 0;
+                                const target = board[m.r][m.c];
+                                if(target) {
+                                    score += PIECE_VALUES[target.toLowerCase()] || 0;
+                                }
+                                allMoves.push({from: {r,c}, to: m, score: score, capture: !!target});
+                            });
+                        }
                     }
                 }
-            }
 
-            if(allMoves.length > 0) {
-                // Sort: Captures first, then random
-                allMoves.sort((a,b) => (b.capture ? 1 : 0) - (a.capture ? 1 : 0));
-                
-                // Pick from top moves (if multiple captures, pick random among them)
-                const bestMoves = allMoves.filter(m => m.capture === allMoves[0].capture);
-                const move = bestMoves[Math.floor(Math.random() * bestMoves.length)];
-                
-                board[move.to.r][move.to.c] = board[move.from.r][move.from.c];
-                board[move.from.r][move.from.c] = '';
-                
-                // Promotion
-                if (board[move.to.r][move.to.c] === 'p' && move.to.r === 7) board[move.to.r][move.to.c] = 'q';
+                if(allMoves.length > 0) {
+                    allMoves.sort((a,b) => b.score - a.score);
+                    const bestScore = allMoves[0].score;
+                    const bestMoves = allMoves.filter(m => m.score === bestScore);
+                    const move = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+                    
+                    board[move.to.r][move.to.c] = board[move.from.r][move.from.c];
+                    board[move.from.r][move.from.c] = '';
+                    
+                    if (board[move.to.r][move.to.c] === 'p' && move.to.r === 7) board[move.to.r][move.to.c] = 'q';
 
-                currentPlayer = 'w';
-                updateStatus();
-                renderBoard();
+                    currentPlayer = 'w';
+                    updateStatus();
+                    renderBoard();
 
-                if(isKingCaptured()) endGame('b');
-            } else {
-                // No moves? Stalemate or Checkmate (Simplified as loss for CPU here)
+                    if(isKingCaptured()) {
+                        endGame('b');
+                        return;
+                    }
+                } else {
+                    endGame('w');
+                    return;
+                }
+            } catch (e) {
+                console.error("CPU Move Error:", e);
                 endGame('w');
+            } finally {
+                isProcessing = false;
             }
-            isProcessing = false;
         }
 
         function updateStatus() {
@@ -501,6 +568,7 @@
 
         function endGame(winner) {
             isGameOver = true;
+            isProcessing = false;
             resultTitle.innerText = winner === 'w' ? "YOU WIN!" : "CPU WINS!";
             resultMsg.innerText = winner === 'w' ? "Checkmate! Excellent game." : "Better luck next time.";
             overlay.classList.add('active');
@@ -509,8 +577,7 @@
         restartBtn.addEventListener('click', initGame);
         playAgainBtn.addEventListener('click', initGame);
 
-        // Init
-        initGame();
+        window.onload = initGame;
     </script>
 </body>
 </html>
