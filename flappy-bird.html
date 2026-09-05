@@ -53,6 +53,34 @@
         .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
         .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
 
+        /* ✅ BACK TO MAIN PAGE BUTTON (TOP RIGHT) */
+        .back-to-main-btn {
+            position: fixed;
+            top: calc(var(--nav-height) + 15px);
+            right: 5%;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 900;
+        }
+        .back-to-main-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .back-to-main-btn i { font-size: 0.85rem; }
+
         /* ✅ GAME CONTAINER STYLES */
         .game-wrapper {
             display: flex;
@@ -139,6 +167,7 @@
             .nav-links { display: none; } .mobile-menu-btn { display: block; }
             .game-header h1 { font-size: 1.4rem; } 
             .game-wrapper { max-width: 95%; }
+            .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
         }
     </style>
 </head>
@@ -155,6 +184,11 @@
         </ul>
         <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
     </nav>
+
+    <!-- ✅ BACK TO MAIN PAGE BUTTON (TOP RIGHT) -->
+    <a href="https://sbmousavices.github.io/Community-Hub/game-index.html" class="back-to-main-btn">
+        <i class="fas fa-arrow-left"></i> Back to Main Page
+    </a>
 
     <!-- ✅ GAME AREA -->
     <div class="game-wrapper">
