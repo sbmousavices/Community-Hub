@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Memory | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 20px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ✅ STATS BAR */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 20px;
+            margin-bottom: 10px;
+        }
+        .stat-item { font-size: 0.9rem; color: var(--text-secondary); font-weight: 600; }
+        .stat-item span { color: var(--accent-light); margin-left: 5px; }
+
+        /* ✅ MEMORY GRID */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 100%;
+            aspect-ratio: 1 / 1; /* Keeps it square */
+            perspective: 1000px; /* Essential for 3D flip */
+        }
+
+        /* ✅ CARD STYLES */
+        .card {
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+            aspect-ratio: 1 / 1;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            animation: pulse-gold 0.5s ease-in-out;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(212, 175, 55, 0.6); }
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 2px solid var(--border);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Front Face (Hidden state - Gold Pattern) */
+        .card-front {
+            background: linear-gradient(135deg, #1a2b4c 0%, #0f1f38 100%);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .card-front::after {
+            content: '\f002'; /* Search icon as pattern */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+
+        /* Back Face (Revealed state - White/Gold Icon) */
+        .card-back {
+            background: #e8eef7;
+            color: #0a1628;
+            transform: rotateY(180deg);
+            border-color: var(--accent-light);
+        }
+
+        /* ✅ UNIFIED START BUTTON STYLE */
+        .start-btn {
+            margin-top: 15px; padding: 10px 28px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .start-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6); }
+        .start-btn:active { transform: translateY(-1px); }
+
+        .controls-hint { font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7; margin-top: 5px; text-align: center;}
+
+        /* ✅ WIN OVERLAY */
+        #win-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+        #win-screen h2 { color: var(--accent); font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
+        #win-screen p { color: #fff; font-size: 1.2rem; margin-bottom: 20px; text-align: center; line-height: 1.6;}
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.4rem; } 
+            .game-wrapper { max-width: 95%; }
+            .memory-grid { gap: 8px; }
+            .card-face { font-size: 1.5rem; border-radius: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ YOUR UNIFIED NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
+            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
+            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
+            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-brain"></i> Gold Memory</h1>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">Time: <span id="timer">00:00</span></div>
+            <div class="stat-item">Moves: <span id="moves">0</span></div>
+        </div>
+        
+        <div class="memory-grid" id="grid">
+            <!-- Cards will be generated by JS -->
+        </div>
+        
+        <button id="startBtn" class="start-btn"><i class="fas fa-play"></i> Start Game</button>
+        <div class="controls-hint">Find all matching pairs as fast as you can!</div>
+
+        <!-- Win Screen Overlay -->
+        <div id="win-screen">
+            <h2>YOU WON!</h2>
+            <p>Time: <span id="final-time">00:00</span><br>Moves: <span id="final-moves">0</span></p>
+            <button id="restartBtn" class="start-btn"><i class="fas fa-redo"></i> Play Again</button>
+        </div>
+    </div>
+
+    <!-- ✅ COMPLETE JAVASCRIPT LOGIC -->
+    <script>
+        const grid = document.getElementById('grid');
+        const timerEl = document.getElementById('timer');
+        const movesEl = document.getElementById('moves');
+        const startBtn = document.getElementById('startBtn');
+        const winScreen = document.getElementById('win-screen');
+        const restartBtn = document.getElementById('restartBtn');
+        const finalTimeEl = document.getElementById('final-time');
+        const finalMovesEl = document.getElementById('final-moves');
+
+        // Game State
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let timer = 0;
+        let timerInterval;
+        let isLocked = false; // Prevent clicking while animating
+        let isGameActive = false;
+
+        // Icons for cards (FontAwesome classes)
+        const icons = [
+            'fa-rocket', 'fa-gem', 'fa-crown', 'fa-bolt', 
+            'fa-shield-halved', 'fa-star', 'fa-dragon', 'fa-atom'
+        ];
+
+        // Initialize Game Board
+        function initBoard() {
+            grid.innerHTML = '';
+            // Create pairs
+            const deck = [...icons, ...icons];
+            // Shuffle
+            deck.sort(() => 0.5 - Math.random());
+
+            deck.forEach(iconClass => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.icon = iconClass;
+                
+                card.innerHTML = `
+                    <div class="card-face card-front"></div>
+                    <div class="card-face card-back">
+                        <i class="fas ${iconClass}"></i>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => flipCard(card));
+                grid.appendChild(card);
+                cards.push(card);
+            });
+        }
+
+        function startGame() {
+            if(isGameActive) return;
+            
+            resetStats();
+            isGameActive = true;
+            startBtn.style.display = 'none';
+            winScreen.style.display = 'none';
+            
+            // Start Timer
+            timerInterval = setInterval(() => {
+                timer++;
+                const mins = Math.floor(timer / 60).toString().padStart(2, '0');
+                const secs = (timer % 60).toString().padStart(2, '0');
+                timerEl.innerText = `${mins}:${secs}`;
+            }, 1000);
+
+            initBoard();
+        }
+
+        function flipCard(card) {
+            if (isLocked) return;
+            if (card === flippedCards[0]) return; // Can't click same card twice
+            if (card.classList.contains('flipped')) return; // Already matched
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesEl.innerText = moves;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            isLocked = true;
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.icon === card2.dataset.icon;
+
+            if (isMatch) {
+                disableCards();
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            flippedCards[0].classList.add('matched');
+            flippedCards[1].classList.add('matched');
+            
+            matchedPairs++;
+            flippedCards = [];
+            isLocked = false;
+
+            if (matchedPairs === icons.length) {
+                endGame();
+            }
+        }
+
+        function unflipCards() {
+            setTimeout(() => {
+                flippedCards[0].classList.remove('flipped');
+                flippedCards[1].classList.remove('flipped');
+                flippedCards = [];
+                isLocked = false;
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            isGameActive = false;
+            
+            const mins = Math.floor(timer / 60).toString().padStart(2, '0');
+            const secs = (timer % 60).toString().padStart(2, '0');
+            
+            finalTimeEl.innerText = `${mins}:${secs}`;
+            finalMovesEl.innerText = moves;
+            
+            setTimeout(() => {
+                winScreen.style.display = 'flex';
+            }, 500);
+        }
+
+        function resetStats() {
+            clearInterval(timerInterval);
+            timer = 0;
+            moves = 0;
+            matchedPairs = 0;
+            flippedCards = [];
+            isLocked = false;
+            timerEl.innerText = "00:00";
+            movesEl.innerText = "0";
+            cards = [];
+        }
+
+        // Event Listeners
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', () => {
+            winScreen.style.display = 'none';
+            startBtn.style.display = 'flex';
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--text-secondary); padding-top:40%;">Press Start to Play</div>';
+        });
+
+        // Initial Placeholder
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:var(--text-secondary); padding-top:40%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;"><i class="fas fa-puzzle-piece" style="font-size:3rem; opacity:0.3;"></i><span>Ready to challenge your memory?</span></div>';
+
+    </script>
+</body>
+</html>

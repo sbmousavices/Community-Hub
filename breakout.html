@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakout Gold | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 30px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 700px;
+            padding: 0 20px;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 2.2rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        .score-board { font-size: 1.3rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 15px; }
+        .score-board span { color: var(--accent-light); font-size: 1.5rem; }
+
+        /* ✅ CANVAS STYLING WITH VINTAGE FRAME */
+        canvas {
+            background: #050b14; border: 4px double var(--accent); border-radius: 4px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.15);
+            display: block; max-width: 100%; height: auto; cursor: none;
+        }
+
+        /* ✅ UNIFIED START BUTTON STYLE (MATCHES SNAKE GAME) */
+        .start-btn {
+            margin-top: 20px; padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1.1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .start-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6); }
+        .start-btn:active { transform: translateY(-1px); }
+
+        .controls-hint { font-size: 0.85rem; color: var(--text-secondary); opacity: 0.7; margin-top: 10px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.6rem; } 
+            .game-wrapper { max-width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ YOUR UNIFIED NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
+            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
+            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
+            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-cubes"></i> Breakout Gold</h1>
+            <div class="score-board">Score: <span id="score">0</span></div>
+        </div>
+        
+        <canvas id="gameCanvas" width="600" height="500"></canvas>
+        
+        <button id="startBtn" class="start-btn"><i class="fas fa-play"></i> Start Game</button>
+        <div class="controls-hint">Use Mouse or Arrow Keys to Move Paddle • Space to Pause</div>
+    </div>
+
+    <!-- ✅ COMPLETE JAVASCRIPT LOGIC -->
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const startBtn = document.getElementById('startBtn');
+
+        // Game Settings
+        let score = 0;
+        let isPaused = false;
+        let isGameRunning = false;
+        let animationId;
+
+        // Ball
+        const ball = { x: 300, y: 250, dx: 4, dy: -4, radius: 8 };
+        
+        // Paddle
+        const paddle = { width: 100, height: 12, x: 250, speed: 8 };
+        
+        // Bricks
+        const brickRowCount = 5;
+        const brickColumnCount = 8;
+        const brickWidth = 60;
+        const brickHeight = 20;
+        const brickPadding = 10;
+        const brickOffsetTop = 40;
+        const brickOffsetLeft = 25;
+        let bricks = [];
+
+        function initBricks() {
+            bricks = [];
+            for(let c=0; c<brickColumnCount; c++) {
+                bricks[c] = [];
+                for(let r=0; r<brickRowCount; r++) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1 };
+                }
+            }
+        }
+
+        // Start Button Event Listener
+        startBtn.addEventListener('click', () => {
+            resetGame();
+            isGameRunning = true;
+            startBtn.innerHTML = '<i class="fas fa-redo"></i> Restart';
+            startBtn.blur();
+            startGame();
+        });
+
+        function startGame() {
+            cancelAnimationFrame(animationId);
+            gameLoop();
+            document.addEventListener('keydown', keyDownEvent);
+            document.addEventListener('keyup', keyUpEvent);
+            document.addEventListener('mousemove', mouseMoveHandler);
+        }
+
+        function gameLoop() {
+            if (!isGameRunning) return;
+            
+            if (!isPaused) {
+                update();
+                draw();
+            }
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            // Move Ball
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Wall Collisions
+            if(ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+                ball.dx = -ball.dx;
+            }
+            if(ball.y - ball.radius < 0) {
+                ball.dy = -ball.dy;
+            }
+
+            // Bottom Wall (Game Over)
+            if(ball.y + ball.radius > canvas.height) {
+                gameOver();
+                return;
+            }
+
+            // Paddle Collision
+            if(ball.y + ball.radius > canvas.height - paddle.height - 10 && 
+               ball.y - ball.radius < canvas.height - 10 &&
+               ball.x > paddle.x && 
+               ball.x < paddle.x + paddle.width) {
+                
+                let hitPoint = ball.x - (paddle.x + paddle.width / 2);
+                ball.dx = hitPoint * 0.15; 
+                ball.dy = -Math.abs(ball.dy);
+                ball.dy *= 1.02; // Speed up slightly
+            }
+
+            // Brick Collision
+            for(let c=0; c<brickColumnCount; c++) {
+                for(let r=0; r<brickRowCount; r++) {
+                    let b = bricks[c][r];
+                    if(b.status == 1) {
+                        if(ball.x > b.x && ball.x < b.x+brickWidth && ball.y > b.y && ball.y < b.y+brickHeight) {
+                            ball.dy = -ball.dy;
+                            b.status = 0;
+                            score += 10;
+                            scoreElement.innerText = score;
+                            
+                            if(score == brickRowCount*brickColumnCount*10) {
+                                alert("YOU WIN! CONGRATULATIONS!");
+                                resetGame();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Keyboard Paddle Movement
+            if(rightPressed && paddle.x < canvas.width - paddle.width) {
+                paddle.x += paddle.speed;
+            }
+            else if(leftPressed && paddle.x > 0) {
+                paddle.x -= paddle.speed;
+            }
+        }
+
+        function draw() {
+            // Clear Canvas
+            ctx.fillStyle = '#050b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Bricks
+            for(let c=0; c<brickColumnCount; c++) {
+                for(let r=0; r<brickRowCount; r++) {
+                    if(bricks[c][r].status == 1) {
+                        let brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+                        let brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+                        bricks[c][r].x = brickX;
+                        bricks[c][r].y = brickY;
+                        
+                        let gradient = ctx.createLinearGradient(brickX, brickY, brickX, brickY+brickHeight);
+                        gradient.addColorStop(0, '#f4d06f');
+                        gradient.addColorStop(1, '#d4af37');
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(brickX, brickY, brickWidth, brickHeight);
+                        
+                        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                        ctx.strokeRect(brickX, brickY, brickWidth, brickHeight);
+                    }
+                }
+            }
+
+            // Draw Ball
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.closePath();
+
+            // Draw Paddle with Glow
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#d4af37";
+            ctx.fillStyle = '#d4af37';
+            ctx.fillRect(paddle.x, canvas.height-paddle.height-10, paddle.width, paddle.height);
+            ctx.shadowBlur = 0;
+        }
+
+        function gameOver() {
+            isGameRunning = false;
+            setTimeout(() => alert(`Game Over! Your Score: ${score}`), 10);
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Play Again';
+        }
+
+        function resetGame() {
+            score = 0;
+            scoreElement.innerText = score;
+            ball.x = canvas.width/2;
+            ball.y = canvas.height-30;
+            ball.dx = 4;
+            ball.dy = -4;
+            paddle.x = (canvas.width-paddle.width)/2;
+            isPaused = false;
+            initBricks();
+            draw();
+        }
+
+        // Input Handlers
+        let rightPressed = false;
+        let leftPressed = false;
+
+        function keyDownEvent(e) {
+            if(e.key == "Right" || e.key == "ArrowRight") rightPressed = true;
+            else if(e.key == "Left" || e.key == "ArrowLeft") leftPressed = true;
+            else if(e.key === ' ') {
+                if(isGameRunning) isPaused = !isPaused;
+            }
+        }
+
+        function keyUpEvent(e) {
+            if(e.key == "Right" || e.key == "ArrowRight") rightPressed = false;
+            else if(e.key == "Left" || e.key == "ArrowLeft") leftPressed = false;
+        }
+
+        function mouseMoveHandler(e) {
+            const relativeX = e.clientX - canvas.offsetLeft;
+            if(relativeX > 0 && relativeX < canvas.width) {
+                paddle.x = relativeX - paddle.width/2;
+            }
+        }
+
+        // Initial Draw
+        initBricks();
+        resetGame();
+    </script>
+</body>
+</html>

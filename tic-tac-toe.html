@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Tic-Tac-Toe | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 20px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ✅ STATS BAR */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .stat-item span { color: var(--accent-light); margin-left: 4px; }
+
+        /* ✅ GAME BOARD */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 360px;
+            aspect-ratio: 1 / 1;
+            background: rgba(212, 175, 55, 0.05);
+            border: 4px double var(--accent);
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .cell {
+            background: #0f1f38;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .cell:hover:not(.taken) {
+            background: #1a2b4c;
+            border-color: var(--accent);
+            transform: scale(0.98);
+        }
+
+        .cell.x { color: #f4d06f; text-shadow: 0 0 10px rgba(244, 208, 111, 0.5); }
+        .cell.o { color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+        
+        .cell.win {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: var(--accent);
+            animation: pulse-win 1s infinite alternate;
+        }
+
+        @keyframes pulse-win {
+            from { box-shadow: 0 0 5px rgba(212, 175, 55, 0.3); }
+            to { box-shadow: 0 0 20px rgba(212, 175, 55, 0.6); }
+        }
+
+        /* ✅ ACTION BUTTON */
+        .action-btn {
+            margin-top: 15px; padding: 10px 30px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+
+        .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; margin-top: 5px; text-align: center;}
+
+        /* ✅ OVERLAY */
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+        #overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #overlay h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
+        #overlay p { color: #fff; font-size: 1rem; margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.4rem; } 
+            .game-wrapper { max-width: 95%; }
+            .cell { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-times"></i> Gold Dots</h1>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">You (X): <span id="player-wins">0</span></div>
+            <div class="stat-item">CPU (O): <span id="cpu-wins">0</span></div>
+            <div class="stat-item">Draws: <span id="draws">0</span></div>
+        </div>
+        
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+
+        <button id="restartBtn" class="action-btn"><i class="fas fa-redo"></i> New Game</button>
+        <div class="controls-hint">Tap a cell to place your X • Can you beat the AI?</div>
+
+        <!-- Overlay -->
+        <div id="overlay">
+            <h2 id="result-title">YOU WIN!</h2>
+            <p id="result-msg">Great strategy!</p>
+            <button id="playAgainBtn" class="action-btn"><i class="fas fa-play"></i> Play Again</button>
+        </div>
+    </div>
+
+    <!-- ✅ JAVASCRIPT LOGIC -->
+    <script>
+        const cells = document.querySelectorAll('.cell');
+        const boardEl = document.getElementById('board');
+        const overlay = document.getElementById('overlay');
+        const resultTitle = document.getElementById('result-title');
+        const resultMsg = document.getElementById('result-msg');
+        const restartBtn = document.getElementById('restartBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        
+        const playerWinsEl = document.getElementById('player-wins');
+        const cpuWinsEl = document.getElementById('cpu-wins');
+        const drawsEl = document.getElementById('draws');
+
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X'; // Player is always X
+        let gameActive = true;
+        
+        let stats = JSON.parse(localStorage.getItem('tttStats')) || { player: 0, cpu: 0, draws: 0 };
+        updateStatsUI();
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
+            [0, 4, 8], [2, 4, 6]             // Diagonals
+        ];
+
+        function handleCellClick(e) {
+            const clickedCell = e.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            if (board[clickedCellIndex] !== '' || !gameActive || currentPlayer !== 'X') {
+                return;
+            }
+
+            makeMove(clickedCellIndex, 'X');
+            
+            if (gameActive) {
+                currentPlayer = 'O';
+                setTimeout(cpuMove, 600); // Delay for realism
+            }
+        }
+
+        function makeMove(index, player) {
+            board[index] = player;
+            const cell = cells[index];
+            cell.innerText = player;
+            cell.classList.add(player.toLowerCase(), 'taken');
+            
+            checkResult();
+        }
+
+        function cpuMove() {
+            if (!gameActive) return;
+
+            // Simple AI: Try to win, then block, then random
+            let moveIndex = findBestMove('O') ?? findBestMove('X') ?? getRandomMove();
+            
+            if (moveIndex !== null) {
+                makeMove(moveIndex, 'O');
+                if (gameActive) currentPlayer = 'X';
+            }
+        }
+
+        function findBestMove(player) {
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                const line = [board[a], board[b], board[c]];
+                
+                // If 2 cells are player and 1 is empty, take it
+                if (line.filter(x => x === player).length === 2 && line.includes('')) {
+                    if (board[a] === '') return a;
+                    if (board[b] === '') return b;
+                    if (board[c] === '') return c;
+                }
+            }
+            return null;
+        }
+
+        function getRandomMove() {
+            const available = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
+            if (available.length === 0) return null;
+            return available[Math.floor(Math.random() * available.length)];
+        }
+
+        function checkResult() {
+            let roundWon = false;
+            let winningLine = [];
+
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (board[a] === '' || board[b] === '' || board[c] === '') continue;
+                
+                if (board[a] === board[b] && board[b] === board[c]) {
+                    roundWon = true;
+                    winningLine = [a, b, c];
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                endGame(currentPlayer, winningLine);
+                return;
+            }
+
+            if (!board.includes('')) {
+                endGame('Draw');
+                return;
+            }
+        }
+
+        function endGame(winner, line = []) {
+            gameActive = false;
+            
+            if (winner === 'X') {
+                resultTitle.innerText = "YOU WIN!";
+                resultTitle.style.color = "#f4d06f";
+                resultMsg.innerText = "Excellent strategy!";
+                stats.player++;
+                line.forEach(idx => cells[idx].classList.add('win'));
+            } else if (winner === 'O') {
+                resultTitle.innerText = "CPU WINS!";
+                resultTitle.style.color = "#60a5fa";
+                resultMsg.innerText = "Better luck next time.";
+                stats.cpu++;
+                line.forEach(idx => cells[idx].classList.add('win'));
+            } else {
+                resultTitle.innerText = "IT'S A DRAW!";
+                resultTitle.style.color = "#fff";
+                resultMsg.innerText = "Well played by both sides.";
+                stats.draws++;
+            }
+
+            localStorage.setItem('tttStats', JSON.stringify(stats));
+            updateStatsUI();
+            
+            setTimeout(() => overlay.classList.add('active'), 800);
+        }
+
+        function updateStatsUI() {
+            playerWinsEl.innerText = stats.player;
+            cpuWinsEl.innerText = stats.cpu;
+            drawsEl.innerText = stats.draws;
+        }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            overlay.classList.remove('active');
+            
+            cells.forEach(cell => {
+                cell.innerText = '';
+                cell.classList.remove('x', 'o', 'taken', 'win');
+            });
+        }
+
+        // Event Listeners
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+        restartBtn.addEventListener('click', resetGame);
+        playAgainBtn.addEventListener('click', resetGame);
+
+    </script>
+</body>
+</html>

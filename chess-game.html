@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Chess | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 20px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ✅ STATUS BAR */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .turn-indicator { display: flex; align-items: center; gap: 8px; }
+        .turn-dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+        .turn-dot.black { background: #333; border: 1px solid #555; }
+
+        /* ✅ CHESS BOARD */
+        .board-container {
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 1 / 1;
+            border: 4px double var(--accent);
+            border-radius: 4px;
+            background: #1a2b4c;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            overflow: hidden;
+        }
+
+        .square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem; /* Size of chess pieces */
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* Board Colors */
+        .square.light { background: #e8dcc4; color: #0a1628; }
+        .square.dark { background: #4a3c31; color: #e8dcc4; }
+
+        /* Highlights */
+        .square.selected { background: rgba(212, 175, 55, 0.6) !important; }
+        .square.valid-move::after {
+            content: '';
+            position: absolute;
+            width: 20%;
+            height: 20%;
+            background: rgba(212, 175, 55, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--accent);
+        }
+        .square.capture-move { background: rgba(239, 68, 68, 0.4) !important; }
+
+        /* Piece Styling */
+        .piece {
+            z-index: 2;
+            transition: transform 0.2s;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+        }
+        .piece.white { color: #fff; text-shadow: 0 0 2px #000; }
+        .piece.black { color: #111; text-shadow: 0 0 2px #fff; }
+
+        /* ✅ ACTION BUTTON */
+        .action-btn {
+            margin-top: 15px; padding: 10px 30px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+
+        .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; margin-top: 5px; text-align: center;}
+
+        /* ✅ OVERLAY */
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 4px;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+        #overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #overlay h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
+        #overlay p { color: #fff; font-size: 1rem; margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.4rem; } 
+            .game-wrapper { max-width: 95%; }
+            .square { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-chess-king"></i> Gold Chess</h1>
+        </div>
+
+        <div class="status-bar">
+            <div class="turn-indicator" id="turn-display">
+                <div class="turn-dot"></div> Your Turn (White)
+            </div>
+            <div id="game-status">Active</div>
+        </div>
+        
+        <div class="board-container" id="board">
+            <!-- Squares generated by JS -->
+        </div>
+
+        <button id="restartBtn" class="action-btn"><i class="fas fa-redo"></i> New Game</button>
+        <div class="controls-hint">Tap piece to select • Tap highlighted square to move</div>
+
+        <!-- Overlay -->
+        <div id="overlay">
+            <h2 id="result-title">CHECKMATE!</h2>
+            <p id="result-msg">You Won!</p>
+            <button id="playAgainBtn" class="action-btn"><i class="fas fa-play"></i> Play Again</button>
+        </div>
+    </div>
+
+    <!-- ✅ JAVASCRIPT LOGIC -->
+    <script>
+        const boardEl = document.getElementById('board');
+        const turnDisplay = document.getElementById('turn-display');
+        const gameStatus = document.getElementById('game-status');
+        const overlay = document.getElementById('overlay');
+        const resultTitle = document.getElementById('result-title');
+        const resultMsg = document.getElementById('result-msg');
+        const restartBtn = document.getElementById('restartBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        // Unicode Chess Pieces
+        const PIECES = {
+            w: { k: '♔', q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' },
+            b: { k: '', q: '♛', r: '', b: '♝', n: '', p: '♟' }
+        };
+
+        // Initial Board Setup (Standard Chess)
+        // lowercase = black, UPPERCASE = white
+        const INITIAL_BOARD = [
+            ['r','n','b','q','k','b','n','r'],
+            ['p','p','p','p','p','p','p','p'],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['P','P','P','P','P','P','P','P'],
+            ['R','N','B','Q','K','B','N','R']
+        ];
+
+        let board = [];
+        let currentPlayer = 'w'; // 'w' or 'b'
+        let selectedSquare = null;
+        let validMoves = [];
+        let isGameOver = false;
+        let isProcessing = false;
+
+        function initGame() {
+            board = JSON.parse(JSON.stringify(INITIAL_BOARD));
+            currentPlayer = 'w';
+            selectedSquare = null;
+            validMoves = [];
+            isGameOver = false;
+            isProcessing = false;
+            overlay.classList.remove('active');
+            updateStatus();
+            renderBoard();
+        }
+
+        function getPieceColor(piece) {
+            if (!piece) return null;
+            return piece === piece.toUpperCase() ? 'w' : 'b';
+        }
+
+        function renderBoard() {
+            boardEl.innerHTML = '';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const sq = document.createElement('div');
+                    sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    sq.dataset.r = r;
+                    sq.dataset.c = c;
+
+                    // Highlight Selected
+                    if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) {
+                        sq.classList.add('selected');
+                    }
+
+                    // Highlight Valid Moves
+                    const move = validMoves.find(m => m.r === r && m.c === c);
+                    if (move) {
+                        if (board[r][c]) sq.classList.add('capture-move');
+                        else sq.classList.add('valid-move');
+                    }
+
+                    // Render Piece
+                    const pieceChar = board[r][c];
+                    if (pieceChar) {
+                        const color = getPieceColor(pieceChar);
+                        const type = pieceChar.toLowerCase();
+                        const span = document.createElement('span');
+                        span.className = `piece ${color === 'w' ? 'white' : 'black'}`;
+                        span.innerText = PIECES[color][type];
+                        sq.appendChild(span);
+                    }
+
+                    sq.addEventListener('click', () => handleSquareClick(r, c));
+                    boardEl.appendChild(sq);
+                }
+            }
+        }
+
+        function handleSquareClick(r, c) {
+            if (isGameOver || isProcessing || currentPlayer !== 'w') return;
+
+            const clickedPiece = board[r][c];
+            const clickedColor = getPieceColor(clickedPiece);
+
+            // If clicking a valid move destination
+            const move = validMoves.find(m => m.r === r && m.c === c);
+            if (move) {
+                executeMove(selectedSquare, {r, c});
+                return;
+            }
+
+            // Select own piece
+            if (clickedColor === 'w') {
+                selectedSquare = {r, c};
+                calculateValidMoves(r, c, 'w');
+                renderBoard();
+            } else {
+                // Deselect if clicking empty or enemy
+                selectedSquare = null;
+                validMoves = [];
+                renderBoard();
+            }
+        }
+
+        function calculateValidMoves(r, c, color) {
+            validMoves = [];
+            const piece = board[r][c].toLowerCase();
+            const directions = {
+                'r': [[0,1], [0,-1], [1,0], [-1,0]],
+                'b': [[1,1], [1,-1], [-1,1], [-1,-1]],
+                'n': [[2,1], [2,-1], [-2,1], [-2,-1], [1,2], [1,-2], [-1,2], [-1,-2]],
+                'q': [[0,1], [0,-1], [1,0], [-1,0], [1,1], [1,-1], [-1,1], [-1,-1]],
+                'k': [[0,1], [0,-1], [1,0], [-1,0], [1,1], [1,-1], [-1,1], [-1,-1]]
+            };
+
+            const addMoveIfValid = (nr, nc) => {
+                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    const target = board[nr][nc];
+                    const targetColor = getPieceColor(target);
+                    if (!target || targetColor !== color) {
+                        validMoves.push({r: nr, c: nc});
+                        return !!target; // Return true if hit piece (stop sliding)
+                    }
+                }
+                return true; // Stop if out of bounds or own piece
+            };
+
+            if (piece === 'p') {
+                const dir = color === 'w' ? -1 : 1;
+                const startRow = color === 'w' ? 6 : 1;
+                
+                // Move forward 1
+                if (!board[r+dir][c]) {
+                    validMoves.push({r: r+dir, c: c});
+                    // Move forward 2
+                    if (r === startRow && !board[r+(dir*2)][c]) {
+                        validMoves.push({r: r+(dir*2), c: c});
+                    }
+                }
+                // Captures
+                [[dir, -1], [dir, 1]].forEach(([dr, dc]) => {
+                    const nr = r+dr, nc = c+dc;
+                    if (nr>=0 && nr<8 && nc>=0 && nc<8) {
+                        const target = board[nr][nc];
+                        if (target && getPieceColor(target) !== color) {
+                            validMoves.push({r: nr, c: nc});
+                        }
+                    }
+                });
+            } else if (['r', 'b', 'q'].includes(piece)) {
+                directions[piece].forEach(([dr, dc]) => {
+                    let nr = r + dr, nc = c + dc;
+                    while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        const target = board[nr][nc];
+                        if (!target) {
+                            validMoves.push({r: nr, c: nc});
+                        } else {
+                            if (getPieceColor(target) !== color) validMoves.push({r: nr, c: nc});
+                            break;
+                        }
+                        nr += dr; nc += dc;
+                    }
+                });
+            } else if (piece === 'n' || piece === 'k') {
+                directions[piece].forEach(([dr, dc]) => {
+                    addMoveIfValid(r+dr, c+dc);
+                });
+            }
+        }
+
+        function executeMove(from, to) {
+            // Move piece
+            board[to.r][to.c] = board[from.r][from.c];
+            board[from.r][from.c] = '';
+
+            // Pawn Promotion (Simple: Auto Queen)
+            if (board[to.r][to.c] === 'P' && to.r === 0) board[to.r][to.c] = 'Q';
+            if (board[to.r][to.c] === 'p' && to.r === 7) board[to.r][to.c] = 'q';
+
+            selectedSquare = null;
+            validMoves = [];
+            currentPlayer = currentPlayer === 'w' ? 'b' : 'w';
+            updateStatus();
+            renderBoard();
+
+            // Check Win Condition (King Capture - Simplified)
+            if (isKingCaptured()) {
+                endGame(currentPlayer === 'w' ? 'b' : 'w'); // Previous player won
+                return;
+            }
+
+            // CPU Turn
+            if (currentPlayer === 'b' && !isGameOver) {
+                isProcessing = true;
+                setTimeout(cpuMove, 800);
+            }
+        }
+
+        function isKingCaptured() {
+            let wKing = false, bKing = false;
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    if(board[r][c] === 'K') wKing = true;
+                    if(board[r][c] === 'k') bKing = true;
+                }
+            }
+            return !wKing || !bKing;
+        }
+
+        function cpuMove() {
+            // Simple AI: Find all valid moves, prioritize captures
+            let allMoves = [];
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    if(getPieceColor(board[r][c]) === 'b') {
+                        calculateValidMoves(r, c, 'b');
+                        validMoves.forEach(m => {
+                            allMoves.push({from: {r,c}, to: m, capture: !!board[m.r][m.c]});
+                        });
+                    }
+                }
+            }
+
+            if(allMoves.length > 0) {
+                // Sort: Captures first, then random
+                allMoves.sort((a,b) => (b.capture ? 1 : 0) - (a.capture ? 1 : 0));
+                
+                // Pick from top moves (if multiple captures, pick random among them)
+                const bestMoves = allMoves.filter(m => m.capture === allMoves[0].capture);
+                const move = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+                
+                board[move.to.r][move.to.c] = board[move.from.r][move.from.c];
+                board[move.from.r][move.from.c] = '';
+                
+                // Promotion
+                if (board[move.to.r][move.to.c] === 'p' && move.to.r === 7) board[move.to.r][move.to.c] = 'q';
+
+                currentPlayer = 'w';
+                updateStatus();
+                renderBoard();
+
+                if(isKingCaptured()) endGame('b');
+            } else {
+                // No moves? Stalemate or Checkmate (Simplified as loss for CPU here)
+                endGame('w');
+            }
+            isProcessing = false;
+        }
+
+        function updateStatus() {
+            const dot = turnDisplay.querySelector('.turn-dot');
+            if(currentPlayer === 'w') {
+                turnDisplay.innerHTML = '<div class="turn-dot"></div> Your Turn (White)';
+                gameStatus.innerText = "Active";
+            } else {
+                turnDisplay.innerHTML = '<div class="turn-dot black"></div> CPU Thinking...';
+                gameStatus.innerText = "Waiting";
+            }
+        }
+
+        function endGame(winner) {
+            isGameOver = true;
+            resultTitle.innerText = winner === 'w' ? "YOU WIN!" : "CPU WINS!";
+            resultMsg.innerText = winner === 'w' ? "Checkmate! Excellent game." : "Better luck next time.";
+            overlay.classList.add('active');
+        }
+
+        restartBtn.addEventListener('click', initGame);
+        playAgainBtn.addEventListener('click', initGame);
+
+        // Init
+        initGame();
+    </script>
+</body>
+</html>

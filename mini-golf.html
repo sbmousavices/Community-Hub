@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Mini Golf | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 20px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ✅ STATS BAR */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .stat-item span { color: var(--accent-light); margin-left: 4px; }
+
+        /* ✅ CANVAS AREA */
+        #game-canvas {
+            width: 100%;
+            max-width: 460px;
+            aspect-ratio: 1 / 1;
+            background: #0f2a1d; /* Dark green grass */
+            border: 4px double var(--accent);
+            border-radius: 8px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        /* ✅ ACTION BUTTON */
+        .action-btn {
+            margin-top: 15px; padding: 10px 30px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+
+        .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; margin-top: 5px; text-align: center;}
+
+        /* ✅ WIN OVERLAY - FIXED VISIBILITY */
+        #win-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.92);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 30; /* Higher than canvas */
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            text-align: center;
+            pointer-events: auto; /* Ensure clicks work */
+        }
+        
+        #win-screen.active { 
+            display: flex; 
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #win-screen h2 { 
+            color: var(--accent); 
+            font-size: 2.2rem; 
+            margin-bottom: 10px; 
+            text-shadow: 0 0 20px var(--accent); 
+        }
+        #win-screen p { 
+            color: #fff; 
+            font-size: 1.1rem; 
+            margin-bottom: 25px; 
+        }
+
+        /* Specific style for Next Hole button inside overlay */
+        #next-hole-btn {
+            padding: 12px 35px;
+            font-size: 1.1rem;
+            animation: pulse-gold 2s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.4rem; } 
+            .game-wrapper { max-width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-golf-ball-tee"></i> Gold Golf</h1>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">Hole: <span id="hole-num">1</span></div>
+            <div class="stat-item">Strokes: <span id="strokes">0</span></div>
+            <div class="stat-item">Par: <span id="par">3</span></div>
+        </div>
+        
+        <canvas id="game-canvas" width="460" height="460"></canvas>
+
+        <div class="controls-hint">Drag on the ball to aim & shoot • Get in the hole with fewest strokes!</div>
+
+        <!-- ✅ WIN OVERLAY WITH NEXT BUTTON INSIDE -->
+        <div id="win-screen">
+            <h2>HOLE COMPLETE!</h2>
+            <p>Total Strokes: <span id="hole-strokes">0</span></p>
+            <button id="next-hole-btn" class="action-btn">
+                <i class="fas fa-arrow-right"></i> Next Hole
+            </button>
+        </div>
+    </div>
+
+    <!-- ✅ JAVASCRIPT LOGIC -->
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const holeNumEl = document.getElementById('hole-num');
+        const strokesEl = document.getElementById('strokes');
+        const parEl = document.getElementById('par');
+        const winScreen = document.getElementById('win-screen');
+        const holeStrokesEl = document.getElementById('hole-strokes');
+        const nextBtn = document.getElementById('next-hole-btn'); // Fixed ID reference
+
+        // Game State
+        let ball = { x: 50, y: 50, vx: 0, vy: 0, radius: 8, moving: false };
+        let hole = { x: 400, y: 400, radius: 12 };
+        let obstacles = [];
+        let strokes = 0;
+        let currentHole = 1;
+        let isAiming = false;
+        let aimStart = { x: 0, y: 0 };
+        let aimCurrent = { x: 0, y: 0 };
+        let friction = 0.98;
+        let stopThreshold = 0.1;
+
+        function initLevel() {
+            // Reset Ball
+            ball.x = 50 + Math.random() * 50;
+            ball.y = 50 + Math.random() * 360;
+            ball.vx = 0;
+            ball.vy = 0;
+            ball.moving = false;
+
+            // Random Hole Position
+            hole.x = 350 + Math.random() * 80;
+            hole.y = 50 + Math.random() * 360;
+
+            // Generate Obstacles
+            obstacles = [];
+            const numObs = 3 + Math.floor(Math.random() * 3);
+            for(let i=0; i<numObs; i++) {
+                obstacles.push({
+                    x: 100 + Math.random() * 200,
+                    y: Math.random() * 400,
+                    w: 20 + Math.random() * 40,
+                    h: 20 + Math.random() * 100
+                });
+            }
+
+            // Update UI
+            strokes = 0;
+            strokesEl.innerText = strokes;
+            holeNumEl.innerText = currentHole;
+            parEl.innerText = 3;
+            
+            // Hide Win Screen
+            winScreen.classList.remove('active');
+            
+            draw();
+        }
+
+        function draw() {
+            // Clear Canvas
+            ctx.fillStyle = '#0f2a1d';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Grid Pattern
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.05)';
+            ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=40) {
+                ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let i=0; i<canvas.height; i+=40) {
+                ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+
+            // Draw Hole
+            ctx.beginPath();
+            ctx.arc(hole.x, hole.y, hole.radius, 0, Math.PI*2);
+            ctx.fillStyle = '#000';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw Obstacles
+            ctx.fillStyle = '#1a3c2f';
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 2;
+            obstacles.forEach(obs => {
+                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                ctx.strokeRect(obs.x, obs.y, obs.w, obs.h);
+            });
+
+            // Draw Aim Line
+            if (isAiming && !ball.moving) {
+                ctx.beginPath();
+                ctx.moveTo(ball.x, ball.y);
+                const dx = aimStart.x - aimCurrent.x;
+                const dy = aimStart.y - aimCurrent.y;
+                ctx.lineTo(ball.x + dx * 2, ball.y + dy * 2);
+                ctx.strokeStyle = 'rgba(244, 208, 111, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Draw Ball
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(ball.x - 2, ball.y - 2, 2, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.fill();
+        }
+
+        function update() {
+            if (!ball.moving) return;
+
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+
+            ball.vx *= friction;
+            ball.vy *= friction;
+
+            if (Math.abs(ball.vx) < stopThreshold && Math.abs(ball.vy) < stopThreshold) {
+                ball.vx = 0;
+                ball.vy = 0;
+                ball.moving = false;
+            }
+
+            // Wall Collisions
+            if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -1; }
+            if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.vx *= -1; }
+            if (ball.y - ball.radius < 0) { ball.y = ball.radius; ball.vy *= -1; }
+            if (ball.y + ball.radius > canvas.height) { ball.y = canvas.height - ball.radius; ball.vy *= -1; }
+
+            // Obstacle Collisions
+            obstacles.forEach(obs => {
+                if (ball.x + ball.radius > obs.x && ball.x - ball.radius < obs.x + obs.w &&
+                    ball.y + ball.radius > obs.y && ball.y - ball.radius < obs.y + obs.h) {
+                    
+                    const overlapLeft = (ball.x + ball.radius) - obs.x;
+                    const overlapRight = (obs.x + obs.w) - (ball.x - ball.radius);
+                    const overlapTop = (ball.y + ball.radius) - obs.y;
+                    const overlapBottom = (obs.y + obs.h) - (ball.y - ball.radius);
+
+                    const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+                    if (minOverlap === overlapLeft || minOverlap === overlapRight) {
+                        ball.vx *= -1;
+                        ball.x += (minOverlap === overlapLeft) ? -overlapLeft : overlapRight;
+                    } else {
+                        ball.vy *= -1;
+                        ball.y += (minOverlap === overlapTop) ? -overlapTop : overlapBottom;
+                    }
+                }
+            });
+
+            // Hole Detection
+            const dist = Math.hypot(ball.x - hole.x, ball.y - hole.y);
+            if (dist < hole.radius && Math.hypot(ball.vx, ball.vy) < 5) {
+                ball.moving = false;
+                ball.vx = 0; ball.vy = 0;
+                ball.x = hole.x; ball.y = hole.y;
+                draw();
+                showWin();
+                return;
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function showWin() {
+            holeStrokesEl.innerText = strokes;
+            winScreen.classList.add('active'); // This triggers display:flex
+        }
+
+        function nextHole() {
+            currentHole++;
+            initLevel();
+        }
+
+        // Input Handling
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        canvas.addEventListener('mousedown', e => {
+            if (ball.moving) return;
+            const pos = getPos(e);
+            if (Math.hypot(pos.x - ball.x, pos.y - ball.y) < 30) {
+                isAiming = true;
+                aimStart = pos;
+                aimCurrent = pos;
+            }
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            if (!isAiming) return;
+            aimCurrent = getPos(e);
+            draw();
+        });
+
+        canvas.addEventListener('mouseup', e => {
+            if (!isAiming) return;
+            isAiming = false;
+            
+            const dx = aimStart.x - aimCurrent.x;
+            const dy = aimStart.y - aimCurrent.y;
+            
+            const power = Math.min(Math.hypot(dx, dy), 150) * 0.15;
+            const angle = Math.atan2(dy, dx);
+            
+            if (power > 1) {
+                ball.vx = Math.cos(angle) * power;
+                ball.vy = Math.sin(angle) * power;
+                ball.moving = true;
+                strokes++;
+                strokesEl.innerText = strokes;
+                update();
+            }
+            draw();
+        });
+
+        // Touch support
+        canvas.addEventListener('touchstart', e => {
+            if (ball.moving) return;
+            const pos = getPos(e);
+            if (Math.hypot(pos.x - ball.x, pos.y - ball.y) < 40) {
+                isAiming = true;
+                aimStart = pos;
+                aimCurrent = pos;
+                e.preventDefault();
+            }
+        }, {passive: false});
+
+        canvas.addEventListener('touchmove', e => {
+            if (!isAiming) return;
+            aimCurrent = getPos(e);
+            draw();
+            e.preventDefault();
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', e => {
+            if (!isAiming) return;
+            isAiming = false;
+            const dx = aimStart.x - aimCurrent.x;
+            const dy = aimStart.y - aimCurrent.y;
+            const power = Math.min(Math.hypot(dx, dy), 150) * 0.15;
+            const angle = Math.atan2(dy, dx);
+            if (power > 1) {
+                ball.vx = Math.cos(angle) * power;
+                ball.vy = Math.sin(angle) * power;
+                ball.moving = true;
+                strokes++;
+                strokesEl.innerText = strokes;
+                update();
+            }
+            draw();
+        });
+
+        // ✅ FIXED EVENT LISTENER FOR NEXT BUTTON
+        nextBtn.addEventListener('click', nextHole);
+
+        // Init
+        initLevel();
+    </script>
+</body>
+</html>

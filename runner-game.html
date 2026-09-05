@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Runner | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 30px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow: hidden;
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 2.2rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        .score-board { font-size: 1.3rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 15px; }
+        .score-board span { color: var(--accent-light); font-size: 1.5rem; }
+
+        /* ✅ GAME AREA WITH VINTAGE FRAME */
+        #game-area {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background: linear-gradient(to bottom, #050b14 0%, #0f1f38 100%);
+            border: 4px double var(--accent); 
+            border-radius: 4px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.15);
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        /* ✅ SVG RUNNER CHARACTER */
+        #player {
+            position: absolute;
+            left: 50px;
+            bottom: 50px;
+            width: 50px;
+            height: 50px;
+            z-index: 5;
+            filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+            transition: transform 0.1s;
+        }
+
+        /* Running Animation (Bobbing effect) */
+        @keyframes run-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        #player.running {
+            animation: run-bob 0.2s infinite alternate ease-in-out;
+        }
+
+        #player.jumping {
+            animation: none !important;
+            transform: rotate(-15deg) scale(1.1);
+        }
+
+        /* ✅ OBSTACLES */
+        .obstacle {
+            position: absolute;
+            bottom: 50px;
+            background: #02060d;
+            border-top: 2px solid var(--accent);
+            border-left: 2px solid var(--accent);
+            border-right: 2px solid var(--accent);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+        }
+
+        /* ✅ GROUND LINE */
+        #ground-line {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            box-shadow: 0 -2px 10px rgba(212, 175, 55, 0.3);
+            z-index: 1;
+        }
+
+        /* ✅ UNIFIED START BUTTON STYLE */
+        .start-btn {
+            margin-top: 20px; padding: 12px 30px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1.1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .start-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6); }
+        .start-btn:active { transform: translateY(-1px); }
+
+        .controls-hint { font-size: 0.85rem; color: var(--text-secondary); opacity: 0.7; margin-top: 10px; }
+
+        /* ✅ GAME OVER OVERLAY */
+        #game-over-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+        }
+        #game-over-screen h2 { color: var(--accent); font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
+        #game-over-screen p { color: #fff; font-size: 1.5rem; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.6rem; } 
+            .game-wrapper { max-width: 95%; }
+            #game-area { height: 300px; }
+            #player { width: 40px; height: 40px; bottom: 40px; left: 30px; }
+            .obstacle { bottom: 40px; }
+            #ground-line { bottom: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ YOUR UNIFIED NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
+            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
+            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
+            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-running"></i> Gold Runner</h1>
+            <div class="score-board">Distance: <span id="score">0</span>m</div>
+        </div>
+        
+        <div id="game-area">
+            <div id="ground-line"></div>
+            
+            <!-- ✅ CUSTOM SVG RUNNER CHARACTER -->
+            <div id="player">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Head -->
+                    <circle cx="70" cy="25" r="12" fill="#d4af37" stroke="#f4d06f" stroke-width="2"/>
+                    <!-- Body -->
+                    <path d="M65 40 L50 65 L75 60 Z" fill="#d4af37" stroke="#f4d06f" stroke-width="2"/>
+                    <!-- Arms -->
+                    <path d="M65 40 L85 50 L75 60" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M65 40 L45 55 L55 65" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Legs -->
+                    <path d="M50 65 L30 90 L45 90" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M75 60 L90 85 L75 85" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Glow Effect -->
+                    <circle cx="70" cy="25" r="12" fill="none" stroke="#f4d06f" stroke-width="1" opacity="0.5"/>
+                </svg>
+            </div>
+            
+            <div id="game-over-screen">
+                <h2>GAME OVER</h2>
+                <p>Distance: <span id="final-score">0</span>m</p>
+            </div>
+        </div>
+        
+        <button id="startBtn" class="start-btn"><i class="fas fa-play"></i> Start Run</button>
+        <div class="controls-hint">Press Space or Tap Screen to Jump • Double Jump Available!</div>
+    </div>
+
+    <!-- ✅ COMPLETE JAVASCRIPT LOGIC (DOM-BASED) -->
+    <script>
+        const gameArea = document.getElementById('game-area');
+        const player = document.getElementById('player');
+        const scoreElement = document.getElementById('score');
+        const finalScoreElement = document.getElementById('final-score');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startBtn = document.getElementById('startBtn');
+
+        // Game Variables
+        let gameSpeed = 6;
+        let score = 0;
+        let isGameRunning = false;
+        let animationId;
+        let frameCount = 0;
+        let obstacles = [];
+
+        // Player Physics
+        const playerState = {
+            y: 0,
+            dy: 0,
+            jumpForce: 14,
+            grounded: true,
+            jumpCount: 0,
+            maxJumps: 2,
+            gravity: 0.7
+        };
+
+        const groundLevel = 50; // Matches CSS bottom value
+
+        // Start Button Event Listener
+        startBtn.addEventListener('click', () => {
+            resetGame();
+            isGameRunning = true;
+            startBtn.innerHTML = '<i class="fas fa-redo"></i> Restart';
+            startBtn.blur();
+            startGame();
+        });
+
+        function startGame() {
+            cancelAnimationFrame(animationId);
+            gameLoop();
+            
+            window.addEventListener('keydown', handleInput);
+            gameArea.addEventListener('mousedown', handleJump);
+            gameArea.addEventListener('touchstart', (e) => { e.preventDefault(); handleJump(); }, {passive: false});
+        }
+
+        function handleInput(e) {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && isGameRunning) {
+                handleJump();
+            }
+        }
+
+        function handleJump() {
+            if (!isGameRunning) return;
+            
+            if (playerState.jumpCount < playerState.maxJumps) {
+                playerState.dy = -playerState.jumpForce;
+                playerState.jumpCount++;
+                playerState.grounded = false;
+                
+                // Visual feedback
+                player.classList.add('jumping');
+                setTimeout(() => {
+                    if(playerState.grounded) player.classList.remove('jumping');
+                }, 400);
+            }
+        }
+
+        function createObstacle() {
+            const obs = document.createElement('div');
+            obs.className = 'obstacle';
+            
+            // Randomize size
+            const height = 35 + Math.random() * 45;
+            const width = 25 + Math.random() * 25;
+            
+            obs.style.width = width + 'px';
+            obs.style.height = height + 'px';
+            obs.style.left = '800px'; // Start off-screen right
+            
+            gameArea.appendChild(obs);
+            
+            obstacles.push({
+                element: obs,
+                x: 800,
+                width: width,
+                height: height,
+                passed: false
+            });
+        }
+
+        function update() {
+            frameCount++;
+            
+            // Increase speed gradually
+            if (frameCount % 500 === 0) gameSpeed += 0.4;
+
+            // Player Physics
+            playerState.dy += playerState.gravity;
+            playerState.y += playerState.dy;
+
+            // Ground Collision
+            if (playerState.y >= 0) { 
+                playerState.y = 0;
+                playerState.dy = 0;
+                playerState.grounded = true;
+                playerState.jumpCount = 0;
+                
+                if(!player.classList.contains('running')) {
+                    player.classList.add('running');
+                    player.classList.remove('jumping');
+                }
+            } else {
+                playerState.grounded = false;
+            }
+
+            // Apply Y position to DOM element
+            player.style.bottom = (groundLevel + Math.abs(playerState.y)) + 'px';
+
+            // Spawn Obstacles
+            let minGap = 280 + (gameSpeed * 10);
+            let lastObsX = obstacles.length > 0 ? obstacles[obstacles.length - 1].x : -1000;
+            
+            if (obstacles.length === 0 || (800 - lastObsX > minGap && Math.random() < 0.03)) {
+                 if (obstacles.length === 0 || 800 - lastObsX > 320) {
+                     createObstacle();
+                 }
+            }
+
+            // Update Obstacles & Collision
+            const playerRect = player.getBoundingClientRect();
+
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                obs.x -= gameSpeed;
+                obs.element.style.left = obs.x + 'px';
+
+                // Collision Detection using DOM rects
+                const obsRect = obs.element.getBoundingClientRect();
+                
+                // Tighter hitboxes for fairness
+                const pLeft = playerRect.left + 10;
+                const pRight = playerRect.right - 10;
+                const pTop = playerRect.top + 10;
+                const pBottom = playerRect.bottom - 5;
+
+                const oLeft = obsRect.left + 5;
+                const oRight = obsRect.right - 5;
+                const oTop = obsRect.top + 5;
+                const oBottom = obsRect.bottom;
+
+                if (pLeft < oRight && pRight > oLeft && pTop < oBottom && pBottom > oTop) {
+                    gameOver();
+                    return;
+                }
+
+                // Score Update
+                if (!obs.passed && obs.x + obs.width < 50) { 
+                    score++;
+                    scoreElement.innerText = score;
+                    obs.passed = true;
+                }
+
+                // Remove off-screen
+                if (obs.x + obs.width < -50) {
+                    obs.element.remove();
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function gameLoop() {
+            if (!isGameRunning) return;
+            update();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function gameOver() {
+            isGameRunning = false;
+            cancelAnimationFrame(animationId);
+            player.classList.remove('running');
+            player.classList.remove('jumping');
+            
+            finalScoreElement.innerText = score;
+            gameOverScreen.style.display = 'flex';
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Try Again';
+        }
+
+        function resetGame() {
+            score = 0;
+            gameSpeed = 6;
+            frameCount = 0;
+            scoreElement.innerText = score;
+            
+            // Clear existing obstacles
+            obstacles.forEach(o => o.element.remove());
+            obstacles = [];
+            
+            // Reset player
+            playerState.y = 0;
+            playerState.dy = 0;
+            playerState.jumpCount = 0;
+            playerState.grounded = true;
+            player.style.bottom = groundLevel + 'px';
+            player.classList.remove('jumping');
+            
+            gameOverScreen.style.display = 'none';
+        }
+
+        // Initial Setup
+        resetGame();
+    </script>
+</body>
+</html>

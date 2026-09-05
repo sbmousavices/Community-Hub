@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Backgammon | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 20px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ✅ STATS BAR */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .stat-item span { color: var(--accent-light); margin-left: 4px; }
+
+        /* ✅ BOARD LAYOUT */
+        .board-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 560px;
+            aspect-ratio: 4 / 3;
+            background: #1a2b4c;
+            border: 4px double var(--accent);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
+            position: relative;
+        }
+
+        .bar-area {
+            width: 40px;
+            background: #0f1f38;
+            border-left: 2px solid var(--accent);
+            border-right: 2px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .bar-checkers {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .bar-label { font-size: 0.6rem; color: var(--text-secondary); opacity: 0.5; }
+
+        .board-half {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: 1fr 1fr;
+            gap: 2px;
+        }
+
+        .point {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .point.top { justify-content: flex-start; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
+        .point.bottom { justify-content: flex-end; border-top: 2px solid rgba(212, 175, 55, 0.1); }
+
+        .point:nth-child(odd) { background: rgba(212, 175, 55, 0.05); }
+        .point:nth-child(even) { background: rgba(0, 0, 0, 0.2); }
+
+        .point.valid-move { box-shadow: inset 0 0 15px var(--accent); border: 1px solid var(--accent); }
+        .point.selected { background: rgba(212, 175, 55, 0.2); }
+
+        .checker {
+            width: 85%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            margin: -3px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: rgba(0,0,0,0.5);
+        }
+
+        .checker.white { 
+            background: radial-gradient(circle at 30% 30%, #fff, #ccc); 
+            border: 1px solid #aaa;
+        }
+        .checker.black { 
+            background: radial-gradient(circle at 30% 30%, #444, #000); 
+            border: 1px solid #222;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .point-num {
+            position: absolute;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .point.top .point-num { top: 2px; }
+        .point.bottom .point-num { bottom: 2px; }
+
+        /* ✅ DICE AREA */
+        .dice-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dice {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a2b4c, #0f1f38);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-light);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        .dice.used { opacity: 0.3; filter: grayscale(1); }
+        .dice.rolling { animation: shake 0.5s infinite; }
+        
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* ✅ ACTION BUTTONS ROW */
+        .actions-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+            flex: 1;
+            max-width: 160px;
+            justify-content: center;
+        }
+        .action-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        
+        .action-btn.secondary {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            box-shadow: none;
+        }
+        .action-btn.secondary:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; margin-top: 5px; text-align: center;}
+
+        /* ✅ OVERLAY */
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+        #overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #overlay h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
+        #overlay p { color: #fff; font-size: 1rem; margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.4rem; } 
+            .game-wrapper { max-width: 95%; }
+            .board-container { max-width: 100%; aspect-ratio: 3/4; flex-direction: column; }
+            .bar-area { width: 100%; height: 40px; flex-direction: row; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); border-left: none; border-right: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-dice"></i> Gold Backgammon</h1>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">You (White): <span id="player-wins">0</span></div>
+            <div class="stat-item">CPU (Black): <span id="cpu-wins">0</span></div>
+        </div>
+        
+        <div class="board-container">
+            <div class="board-half" id="left-half"></div>
+            <div class="bar-area">
+                <div class="bar-checkers" id="bar-white"><div class="bar-label">BAR</div></div>
+                <div class="bar-checkers" id="bar-black"><div class="bar-label">BAR</div></div>
+            </div>
+            <div class="board-half" id="right-half"></div>
+        </div>
+
+        <div class="dice-area">
+            <div class="dice" id="dice1"><i class="fas fa-dice-one"></i></div>
+            <div class="dice" id="dice2"><i class="fas fa-dice-two"></i></div>
+        </div>
+
+        <div class="actions-row">
+            <button id="undoBtn" class="action-btn secondary" disabled><i class="fas fa-rotate-left"></i> Undo</button>
+            <button id="rollBtn" class="action-btn"><i class="fas fa-dice"></i> Roll Dice</button>
+        </div>
+        
+        <div class="controls-hint">Roll dice • Tap checker to select • Tap highlighted point to move</div>
+
+        <div id="overlay">
+            <h2 id="result-title">YOU WIN!</h2>
+            <p id="result-msg">Excellent strategy!</p>
+            <button id="playAgainBtn" class="action-btn"><i class="fas fa-play"></i> Play Again</button>
+        </div>
+    </div>
+
+    <!-- ✅ JAVASCRIPT LOGIC -->
+    <script>
+        const leftHalfEl = document.getElementById('left-half');
+        const rightHalfEl = document.getElementById('right-half');
+        const barWhiteEl = document.getElementById('bar-white');
+        const barBlackEl = document.getElementById('bar-black');
+        const dice1El = document.getElementById('dice1');
+        const dice2El = document.getElementById('dice2');
+        const rollBtn = document.getElementById('rollBtn');
+        const undoBtn = document.getElementById('undoBtn');
+        const overlay = document.getElementById('overlay');
+        const resultTitle = document.getElementById('result-title');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const playerWinsEl = document.getElementById('player-wins');
+        const cpuWinsEl = document.getElementById('cpu-wins');
+
+        // Game State
+        let board = Array(24).fill(null).map(() => ({ count: 0, color: null }));
+        let bar = { white: 0, black: 0 };
+        let off = { white: 0, black: 0 };
+        
+        let currentPlayer = 'white';
+        let dice = [];
+        let selectedPoint = null;
+        let validMoves = [];
+        let gameActive = false;
+        let isProcessing = false; // Prevent clicks during animations/CPU turn
+        
+        // ✅ UNDO SYSTEM STATE
+        let historyStack = [];
+
+        let stats = JSON.parse(localStorage.getItem('bgStats')) || { player: 0, cpu: 0 };
+        updateStatsUI();
+
+        function initBoard() {
+            board = Array(24).fill(null).map(() => ({ count: 0, color: null }));
+            bar = { white: 0, black: 0 };
+            off = { white: 0, black: 0 };
+            
+            // WHITE Setup
+            board[23] = { count: 2, color: 'white' };
+            board[12] = { count: 5, color: 'white' };
+            board[7]  = { count: 3, color: 'white' };
+            board[5]  = { count: 5, color: 'white' };
+            
+            // BLACK Setup
+            board[0]  = { count: 2, color: 'black' };
+            board[11] = { count: 5, color: 'black' };
+            board[16] = { count: 3, color: 'black' };
+            board[18] = { count: 5, color: 'black' };
+            
+            renderBoard();
+        }
+
+        function renderBoard() {
+            leftHalfEl.innerHTML = '';
+            rightHalfEl.innerHTML = '';
+            barWhiteEl.innerHTML = '<div class="bar-label">BAR</div>';
+            barBlackEl.innerHTML = '<div class="bar-label">BAR</div>';
+
+            for(let i=0; i<bar.white; i++) addCheckerToContainer(barWhiteEl, 'white', -1);
+            for(let i=0; i<bar.black; i++) addCheckerToContainer(barBlackEl, 'black', -1);
+
+            const topRowIndices = [12,11,10,9,8,7, 6,5,4,3,2,1];
+            const bottomRowIndices = [13,14,15,16,17,18, 19,20,21,22,23,24];
+
+            topRowIndices.forEach(idx => createPointElement(idx === 24 ? 23 : idx - 1, 'top', idx));
+            bottomRowIndices.forEach(idx => createPointElement(idx === 24 ? 23 : idx - 1, 'bottom', idx));
+        }
+
+        function createPointElement(arrIdx, posClass, labelNum) {
+            const point = document.createElement('div');
+            point.className = `point ${posClass}`;
+            if(validMoves.includes(arrIdx)) point.classList.add('valid-move');
+            if(selectedPoint === arrIdx) point.classList.add('selected');
+            
+            const num = document.createElement('span');
+            num.className = 'point-num';
+            num.innerText = labelNum;
+            point.appendChild(num);
+
+            const data = board[arrIdx];
+            if(data.count > 0) {
+                const visibleCount = Math.min(data.count, 5);
+                for(let j=0; j<visibleCount; j++) {
+                    addCheckerToContainer(point, data.color, arrIdx, j === visibleCount-1 && data.count > 5 ? data.count : null);
+                }
+            }
+
+            point.addEventListener('click', () => handlePointClick(arrIdx));
+            
+            if(posClass === 'top') {
+                if(labelNum >= 7) leftHalfEl.appendChild(point);
+                else rightHalfEl.appendChild(point);
+            } else {
+                if(labelNum <= 18) leftHalfEl.appendChild(point);
+                else rightHalfEl.appendChild(point);
+            }
+        }
+
+        function addCheckerToContainer(container, color, index, labelText=null) {
+            const c = document.createElement('div');
+            c.className = `checker ${color}`;
+            if(labelText) c.innerText = labelText;
+            container.appendChild(c);
+        }
+
+        // ✅ SAVE STATE FOR UNDO
+        function saveState() {
+            // Only save if it's player's turn and game is active
+            if(currentPlayer !== 'white' || !gameActive) return;
+            
+            historyStack.push({
+                board: JSON.parse(JSON.stringify(board)),
+                bar: {...bar},
+                off: {...off},
+                dice: [...dice],
+                selectedPoint: selectedPoint,
+                validMoves: [...validMoves]
+            });
+            
+            undoBtn.disabled = false;
+        }
+
+        // ✅ RESTORE STATE
+        function restoreState() {
+            if(historyStack.length === 0 || isProcessing) return;
+            
+            const lastState = historyStack.pop();
+            
+            board = JSON.parse(JSON.stringify(lastState.board));
+            bar = {...lastState.bar};
+            off = {...lastState.off};
+            dice = [...lastState.dice];
+            selectedPoint = lastState.selectedPoint;
+            validMoves = [...lastState.validMoves];
+            
+            undoBtn.disabled = historyStack.length === 0;
+            updateDiceUI();
+            renderBoard();
+        }
+
+        function rollDiceAction() {
+            if(!gameActive || currentPlayer !== 'white' || isProcessing) return;
+            
+            // Clear history when rolling new dice (can't undo previous turn's moves after rolling)
+            historyStack = [];
+            undoBtn.disabled = true;
+            
+            isProcessing = true;
+            rollBtn.disabled = true;
+            dice1El.classList.add('rolling');
+            dice2El.classList.add('rolling');
+            
+            setTimeout(() => {
+                dice1El.classList.remove('rolling');
+                dice2El.classList.remove('rolling');
+                
+                const d1 = Math.floor(Math.random() * 6) + 1;
+                const d2 = Math.floor(Math.random() * 6) + 1;
+                
+                dice = [d1, d2];
+                if(d1 === d2) dice = [d1, d1, d1, d1];
+                
+                updateDiceUI();
+                isProcessing = false;
+                
+                if(!hasValidMoves('white')) {
+                    setTimeout(() => switchTurn(), 1000);
+                } else {
+                    rollBtn.disabled = true; // Keep disabled until turn ends
+                }
+            }, 600);
+        }
+
+        function updateDiceUI() {
+            const icons = ['one', 'two', 'three', 'four', 'five', 'six'];
+            dice1El.innerHTML = `<i class="fas fa-dice-${icons[dice[0]-1]}"></i>`;
+            dice2El.innerHTML = dice.length > 1 ? `<i class="fas fa-dice-${icons[dice[1]-1]}"></i>` : '';
+            
+            if(dice.length === 0) {
+                dice1El.classList.add('used');
+                dice2El.classList.add('used');
+            } else {
+                dice1El.classList.remove('used');
+                dice2El.classList.remove('used');
+            }
+        }
+
+        function handlePointClick(index) {
+            if(!gameActive || currentPlayer !== 'white' || isProcessing || dice.length === 0) return;
+
+            if(validMoves.includes(index)) {
+                saveState(); // Save BEFORE executing move
+                executeMove(selectedPoint, index);
+                selectedPoint = null;
+                validMoves = [];
+                renderBoard();
+                
+                // Check if turn should end
+                if(dice.length === 0 || !hasValidMoves('white')) {
+                    isProcessing = true;
+                    setTimeout(() => switchTurn(), 500);
+                }
+                return;
+            }
+
+            if(bar.white > 0) return; 
+
+            const point = board[index];
+            if(point.color === 'white' && point.count > 0) {
+                selectedPoint = index;
+                calculateValidMoves(index, 'white');
+                renderBoard();
+            } else {
+                // Deselect if clicking empty or enemy
+                selectedPoint = null;
+                validMoves = [];
+                renderBoard();
+            }
+        }
+
+        barWhiteEl.addEventListener('click', () => {
+            if(!gameActive || currentPlayer !== 'white' || isProcessing || bar.white === 0 || dice.length === 0) return;
+            selectedPoint = -1;
+            calculateValidMoves(-1, 'white');
+            renderBoard();
+        });
+
+        // ✅ FIXED COMBINED MOVES LOGIC
+        function calculateValidMoves(fromIndex, player) {
+            validMoves = [];
+            const direction = player === 'white' ? -1 : 1;
+            
+            // Get unique single dice values
+            const uniqueDice = [...new Set(dice)];
+            
+            // Check single die moves first
+            uniqueDice.forEach(die => {
+                checkMoveValidity(fromIndex, die, player, direction);
+            });
+
+            // ✅ CHECK COMBINED MOVES (Sum of two dice) - ONLY IF PATH IS CLEAR
+            if(dice.length >= 2) {
+                for(let i=0; i<dice.length; i++) {
+                    for(let j=i+1; j<dice.length; j++) {
+                        const die1 = dice[i];
+                        const die2 = dice[j];
+                        const combinedDie = die1 + die2;
+                        
+                        // CRITICAL FIX: Verify intermediate point is reachable
+                        // Calculate intermediate point based on first die
+                        let intermediateIndex;
+                        if(fromIndex === -1) {
+                            // From bar: enter with die1 first
+                            intermediateIndex = player === 'white' ? 24 - die1 : die1 - 1;
+                        } else {
+                            intermediateIndex = fromIndex + (die1 * direction);
+                        }
+                        
+                        // Check if intermediate point is valid AND destination is valid
+                        if(isValidPoint(intermediateIndex, player)) {
+                            checkMoveValidity(fromIndex, combinedDie, player, direction, true);
+                        }
+                        
+                        // Also try reverse order (die2 then die1)
+                        let intermediateIndex2;
+                        if(fromIndex === -1) {
+                            intermediateIndex2 = player === 'white' ? 24 - die2 : die2 - 1;
+                        } else {
+                            intermediateIndex2 = fromIndex + (die2 * direction);
+                        }
+                        
+                        if(isValidPoint(intermediateIndex2, player)) {
+                            checkMoveValidity(fromIndex, combinedDie, player, direction, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Helper to check if a point is reachable (not blocked by opponent)
+        function isValidPoint(index, player) {
+            if(index < 0 || index > 23) return false; // Out of bounds (but might be bearing off)
+            const target = board[index];
+            // Valid if: Empty, Own Color, OR Opponent Blot (count==1)
+            return target.count === 0 || target.color === player || (target.color !== player && target.count === 1);
+        }
+
+        function checkMoveValidity(fromIndex, distance, player, direction, isCombined=false) {
+            let targetIndex;
+            
+            if(fromIndex === -1) {
+                targetIndex = player === 'white' ? 24 - distance : distance - 1;
+            } else {
+                targetIndex = fromIndex + (distance * direction);
+            }
+
+            // Check Bearing Off
+            let isBearingOff = false;
+            if(player === 'white') {
+                if(targetIndex < 0) {
+                    if(canBearOff('white')) isBearingOff = true;
+                    else return;
+                }
+            } else {
+                if(targetIndex > 23) {
+                    if(canBearOff('black')) isBearingOff = true;
+                    else return;
+                }
+            }
+
+            if(isBearingOff) {
+                if(!validMoves.includes('off')) validMoves.push('off');
+                return;
+            }
+
+            // Check Target Validity
+            if(targetIndex >= 0 && targetIndex <= 23) {
+                const target = board[targetIndex];
+                if(target.count === 0 || target.color === player || (target.color !== player && target.count === 1)) {
+                    if(!validMoves.includes(targetIndex)) validMoves.push(targetIndex);
+                }
+            }
+        }
+
+        function canBearOff(player) {
+            if(player === 'white') {
+                if(bar.white > 0) return false;
+                for(let i=6; i<24; i++) if(board[i].color === 'white') return false;
+            } else {
+                if(bar.black > 0) return false;
+                for(let i=0; i<18; i++) if(board[i].color === 'black') return false;
+            }
+            return true;
+        }
+
+        function hasValidMoves(player) {
+            if(bar[player] > 0) {
+                calculateValidMoves(-1, player);
+                if(validMoves.length > 0) return true;
+                return false;
+            }
+            
+            for(let i=0; i<24; i++) {
+                if(board[i].color === player && board[i].count > 0) {
+                    calculateValidMoves(i, player);
+                    if(validMoves.length > 0) return true;
+                }
+            }
+            return false;
+        }
+
+        // ✅ EXECUTE MOVE WITH COMBINED DIE SUPPORT
+        function executeMove(from, to) {
+            const player = currentPlayer;
+            const direction = player === 'white' ? -1 : 1;
+            
+            // Calculate actual distance moved
+            let distance = 0;
+            if(from === -1) {
+                distance = player === 'white' ? (24 - to) : (to + 1);
+            } else if(to === 'off') {
+                // For bearing off, use exact distance or largest die
+                const homeStart = player === 'white' ? 0 : 23;
+                distance = Math.abs(from - homeStart) + 1;
+            } else {
+                distance = Math.abs(to - from);
+            }
+
+            // Find and remove the correct die(s)
+            let removed = false;
+            
+            // Try single die first
+            if(distance <= 6 && dice.includes(distance)) {
+                const idx = dice.indexOf(distance);
+                dice.splice(idx, 1);
+                removed = true;
+            } 
+            // Try combined move
+            else if(dice.length >= 2) {
+                for(let i=0; i<dice.length; i++) {
+                    for(let j=i+1; j<dice.length; j++) {
+                        if(dice[i] + dice[j] === distance) {
+                            dice.splice(j, 1);
+                            dice.splice(i, 1);
+                            removed = true;
+                            break;
+                        }
+                    }
+                    if(removed) break;
+                }
+            }
+            
+            // Fallback for bearing off edge cases
+            if(!removed && dice.length > 0) {
+                dice.sort((a,b) => b-a);
+                dice.shift();
+            }
+
+            // Update Source
+            if(from === -1) {
+                bar[player]--;
+            } else {
+                board[from].count--;
+                if(board[from].count === 0) board[from].color = null;
+            }
+
+            // Update Destination
+            if(to === 'off') {
+                off[player]++;
+                checkWinCondition();
+            } else {
+                const target = board[to];
+                // Hit logic
+                if(target.count === 1 && target.color !== player) {
+                    bar[target.color]++;
+                    target.count = 1;
+                    target.color = player;
+                } else {
+                    // Stacking logic
+                    target.count++;
+                    target.color = player;
+                }
+            }
+            
+            updateDiceUI();
+        }
+
+        function switchTurn() {
+            isProcessing = false;
+            currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+            dice = [];
+            selectedPoint = null;
+            validMoves = [];
+            historyStack = []; // Clear undo history on turn switch
+            undoBtn.disabled = true;
+            rollBtn.disabled = currentPlayer !== 'white';
+            
+            dice1El.innerHTML = '<i class="fas fa-dice-one"></i>';
+            dice2El.innerHTML = '<i class="fas fa-dice-two"></i>';
+            dice1El.classList.remove('used');
+            dice2El.classList.remove('used');
+
+            renderBoard();
+
+            if(currentPlayer === 'black') {
+                isProcessing = true;
+                setTimeout(cpuTurn, 1000);
+            }
+        }
+
+        function cpuTurn() {
+            if(!gameActive) return;
+
+            if(dice.length === 0) {
+                const d1 = Math.floor(Math.random() * 6) + 1;
+                const d2 = Math.floor(Math.random() * 6) + 1;
+                dice = d1 === d2 ? [d1,d1,d1,d1] : [d1,d2];
+                updateDiceUI();
+            }
+
+            let moved = false;
+            let attempts = 0;
+            
+            while(!moved && attempts < 50 && dice.length > 0) {
+                attempts++;
+                
+                let source = -1;
+                if(bar.black > 0) source = -1;
+                else {
+                    const occupied = [];
+                    board.forEach((p, i) => { if(p.color==='black' && p.count>0) occupied.push(i); });
+                    if(occupied.length === 0) break;
+                    source = occupied[Math.floor(Math.random() * occupied.length)];
+                }
+
+                calculateValidMoves(source, 'black');
+                if(validMoves.length > 0) {
+                    const dest = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    executeMove(source, dest);
+                    moved = true;
+                    renderBoard();
+                }
+            }
+
+            if(!moved || dice.length === 0) {
+                setTimeout(() => switchTurn(), 1000);
+            } else {
+                setTimeout(() => cpuTurn(), 800);
+            }
+        }
+
+        function checkWinCondition() {
+            if(off.white === 15) endGame('white');
+            else if(off.black === 15) endGame('black');
+        }
+
+        function endGame(winner) {
+            gameActive = false;
+            isProcessing = false;
+            if(winner === 'white') {
+                resultTitle.innerText = "YOU WIN!";
+                resultTitle.style.color = "#f4d06f";
+                stats.player++;
+            } else {
+                resultTitle.innerText = "CPU WINS!";
+                resultTitle.style.color = "#a0aec0";
+                stats.cpu++;
+            }
+            localStorage.setItem('bgStats', JSON.stringify(stats));
+            updateStatsUI();
+            overlay.classList.add('active');
+        }
+
+        function updateStatsUI() {
+            playerWinsEl.innerText = stats.player;
+            cpuWinsEl.innerText = stats.cpu;
+        }
+
+        function resetGame() {
+            gameActive = true;
+            currentPlayer = 'white';
+            dice = [];
+            selectedPoint = null;
+            validMoves = [];
+            historyStack = [];
+            isProcessing = false;
+            undoBtn.disabled = true;
+            rollBtn.disabled = false;
+            overlay.classList.remove('active');
+            initBoard();
+        }
+
+        // Event Listeners
+        rollBtn.addEventListener('click', rollDiceAction);
+        undoBtn.addEventListener('click', restoreState);
+        playAgainBtn.addEventListener('click', resetGame);
+
+        // Init
+        initBoard();
+        gameActive = true;
+    </script>
+</body>
+</html>

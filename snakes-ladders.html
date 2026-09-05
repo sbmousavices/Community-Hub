@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Snakes & Ladders | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 20px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ✅ STATUS BAR */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .player-indicator { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot.player { background: #60a5fa; }
+        .dot.cpu { background: #f87171; }
+        .active-turn { opacity: 1; transform: scale(1.05); transition: 0.3s; color: var(--accent-light); }
+        .inactive-turn { opacity: 0.5; }
+
+        /* ✅ BOARD GRID - FIXED VISUALS */
+        .board-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 4px double var(--accent);
+            border-radius: 8px;
+            background: #0f1f38;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
+            overflow: hidden; /* Prevents tokens from spilling out */
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            width: 100%;
+            height: 100%;
+        }
+
+        .cell {
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 4px; /* Increased padding slightly for number visibility */
+            font-size: 0.8rem; /* Slightly larger font */
+            color: var(--text-secondary);
+            position: relative;
+            font-weight: 600;
+        }
+        
+        /* Alternating cell colors */
+        .cell:nth-child(odd) { background: rgba(212, 175, 55, 0.02); }
+        .cell:nth-child(even) { background: rgba(0, 0, 0, 0.2); }
+
+        /* ✅ TOKENS (PLAYERS) - MINIMALIST & SMALL */
+        .token {
+            position: absolute;
+            width: 18px; /* ✅ FIXED SMALL SIZE */
+            height: 18px; /* ✅ FIXED SMALL SIZE */
+            border-radius: 50%;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6); /* Subtle shadow only */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0; /* Hide text inside token to keep it clean */
+            border: 2px solid #fff; /* White border for contrast */
+        }
+
+        .token.p1 { 
+            background: #3b82f6; 
+            top: 20%; left: 20%; /* Default offset */
+        }
+        .token.p2 { 
+            background: #ef4444; 
+            top: 50%; left: 50%; /* Default offset */
+        }
+
+        /* ✅ DICE AREA */
+        .dice-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .dice {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a2b4c, #0f1f38);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--accent-light);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+        }
+
+        .dice.rolling { animation: shake 0.4s infinite; }
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* ✅ BUTTONS */
+        .action-btn {
+            padding: 10px 30px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .action-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+        .controls-hint { font-size: 0.75rem; color: var(--text-secondary); opacity: 0.7; margin-top: 5px; text-align: center;}
+
+        /* ✅ WIN OVERLAY */
+        #win-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+        #win-screen h2 { color: var(--accent); font-size: 2.2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
+        #win-screen p { color: #fff; font-size: 1.1rem; margin-bottom: 20px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.4rem; } 
+            .game-wrapper { max-width: 95%; }
+            .cell { font-size: 0.6rem; padding: 2px; }
+            .token { width: 14px; height: 14px; border-width: 1.5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ YOUR UNIFIED NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
+            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
+            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
+            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ GAME AREA -->
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1><i class="fas fa-dice"></i> Gold Snakes</h1>
+        </div>
+
+        <div class="status-bar">
+            <div class="player-indicator active-turn" id="p1-indicator">
+                <div class="dot player"></div> YOU
+            </div>
+            <div class="player-indicator inactive-turn" id="p2-indicator">
+                CPU <div class="dot cpu"></div>
+            </div>
+        </div>
+        
+        <div class="board-container" id="board">
+            <div class="board-grid" id="grid"></div>
+            <!-- Tokens injected here -->
+        </div>
+
+        <div class="dice-area">
+            <div class="dice" id="dice-display"><i class="fas fa-dice-one"></i></div>
+            <button id="rollBtn" class="action-btn"><i class="fas fa-dice"></i> Roll Dice</button>
+        </div>
+        
+        <div class="controls-hint">Race to 100! Avoid 🐍 Snakes, Climb 🪜 Ladders</div>
+
+        <!-- Win Screen Overlay -->
+        <div id="win-screen">
+            <h2 id="winner-text">YOU WON!</h2>
+            <p>Congratulations on reaching the top!</p>
+            <button id="restartBtn" class="action-btn"><i class="fas fa-redo"></i> Play Again</button>
+        </div>
+    </div>
+
+    <!-- ✅ COMPLETE JAVASCRIPT LOGIC -->
+    <script>
+        const gridEl = document.getElementById('grid');
+        const boardEl = document.getElementById('board');
+        const diceDisplay = document.getElementById('dice-display');
+        const rollBtn = document.getElementById('rollBtn');
+        const p1Ind = document.getElementById('p1-indicator');
+        const p2Ind = document.getElementById('p2-indicator');
+        const winScreen = document.getElementById('win-screen');
+        const winnerText = document.getElementById('winner-text');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // Game State
+        let p1Pos = 1;
+        let p2Pos = 1;
+        let isPlayerTurn = true;
+        let isAnimating = false;
+
+        // Snakes and Ladders Map
+        const snakes = { 16: 6, 47: 26, 49: 11, 56: 53, 62: 19, 64: 60, 87: 24, 93: 73, 95: 75, 98: 78 };
+        const ladders = { 1: 38, 4: 14, 9: 31, 21: 42, 28: 84, 36: 44, 51: 67, 71: 91, 80: 100 };
+
+        // Initialize Board Grid
+        function createBoard() {
+            gridEl.innerHTML = '';
+            for (let row = 9; row >= 0; row--) {
+                for (let col = 0; col < 10; col++) {
+                    let num;
+                    if (row % 2 === 0) num = (row * 10) + col + 1;
+                    else num = (row * 10) + (9 - col) + 1;
+                    
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.id = `cell-${num}`;
+                    cell.innerText = num;
+                    
+                    if(snakes[num]) { cell.style.color = '#ef4444'; cell.title = "Snake Head!"; }
+                    if(ladders[num]) { cell.style.color = '#60a5fa'; cell.title = "Ladder Bottom!"; }
+                    
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        // Create Player Tokens
+        const tokenP1 = document.createElement('div');
+        tokenP1.className = 'token p1';
+        boardEl.appendChild(tokenP1);
+
+        const tokenP2 = document.createElement('div');
+        tokenP2.className = 'token p2';
+        boardEl.appendChild(tokenP2);
+
+        function updateTokenPosition(token, pos) {
+            const cell = document.getElementById(`cell-${pos}`);
+            if (!cell) return;
+            
+            const boardRect = boardEl.getBoundingClientRect();
+            const cellRect = cell.getBoundingClientRect();
+            
+            // Calculate relative position inside board container
+            const top = cellRect.top - boardRect.top;
+            const left = cellRect.left - boardRect.left;
+            
+            // Center the token in the cell with slight offset for P2 so they don't overlap completely
+            const tokenSize = token.offsetWidth;
+            const cellSize = cellRect.width;
+            
+            let offsetTop = (cellSize - tokenSize) / 2;
+            let offsetLeft = (cellSize - tokenSize) / 2;
+
+            if (token === tokenP2) {
+                offsetTop += 4; // Slight offset for visibility
+                offsetLeft += 4;
+            }
+            
+            token.style.top = `${top + offsetTop}px`;
+            token.style.left = `${left + offsetLeft}px`;
+        }
+
+        function getDiceIcon(num) {
+            const icons = ['one', 'two', 'three', 'four', 'five', 'six'];
+            return `<i class="fas fa-dice-${icons[num-1]}"></i>`;
+        }
+
+        async function movePlayer(playerNum, steps) {
+            isAnimating = true;
+            let currentPos = playerNum === 1 ? p1Pos : p2Pos;
+            let targetPos = currentPos + steps;
+
+            // Bounce back rule if > 100
+            if (targetPos > 100) targetPos = 100 - (targetPos - 100);
+
+            // Step-by-step movement
+            while (currentPos !== targetPos) {
+                currentPos += (currentPos < targetPos) ? 1 : -1;
+                if (playerNum === 1) { p1Pos = currentPos; updateTokenPosition(tokenP1, p1Pos); }
+                else { p2Pos = currentPos; updateTokenPosition(tokenP2, p2Pos); }
+                await new Promise(r => setTimeout(r, 150));
+            }
+
+            // Check Win
+            if (currentPos === 100) {
+                endGame(playerNum);
+                return;
+            }
+
+            // Check Snake/Ladder
+            let finalPos = currentPos;
+            if (snakes[currentPos]) finalPos = snakes[currentPos];
+            else if (ladders[currentPos]) finalPos = ladders[currentPos];
+
+            if (finalPos !== currentPos) {
+                await new Promise(r => setTimeout(r, 300)); // Pause before sliding
+                if (playerNum === 1) { p1Pos = finalPos; updateTokenPosition(tokenP1, p1Pos); }
+                else { p2Pos = finalPos; updateTokenPosition(tokenP2, p2Pos); }
+            }
+
+            isAnimating = false;
+            switchTurn();
+        }
+
+        function switchTurn() {
+            if(isAnimating) return;
+            isPlayerTurn = !isPlayerTurn;
+            
+            if (isPlayerTurn) {
+                p1Ind.classList.add('active-turn'); p1Ind.classList.remove('inactive-turn');
+                p2Ind.classList.remove('active-turn'); p2Ind.classList.add('inactive-turn');
+                rollBtn.disabled = false;
+                rollBtn.innerHTML = '<i class="fas fa-dice"></i> Roll Dice';
+            } else {
+                p2Ind.classList.add('active-turn'); p2Ind.classList.remove('inactive-turn');
+                p1Ind.classList.remove('active-turn'); p1Ind.classList.add('inactive-turn');
+                rollBtn.disabled = true;
+                rollBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CPU...';
+                setTimeout(cpuRoll, 800);
+            }
+        }
+
+        async function handleRoll() {
+            if (isAnimating || !isPlayerTurn) return;
+            rollBtn.disabled = true;
+            diceDisplay.classList.add('rolling');
+            await new Promise(r => setTimeout(r, 500));
+            const roll = Math.floor(Math.random() * 6) + 1;
+            diceDisplay.classList.remove('rolling');
+            diceDisplay.innerHTML = getDiceIcon(roll);
+            movePlayer(1, roll);
+        }
+
+        async function cpuRoll() {
+            diceDisplay.classList.add('rolling');
+            await new Promise(r => setTimeout(r, 500));
+            const roll = Math.floor(Math.random() * 6) + 1;
+            diceDisplay.classList.remove('rolling');
+            diceDisplay.innerHTML = getDiceIcon(roll);
+            movePlayer(2, roll);
+        }
+
+        function endGame(winner) {
+            winnerText.innerText = winner === 1 ? "YOU WON!" : "CPU WON!";
+            winnerText.style.color = winner === 1 ? "#60a5fa" : "#f87171";
+            winScreen.style.display = 'flex';
+        }
+
+        function resetGame() {
+            p1Pos = 1; p2Pos = 1;
+            isPlayerTurn = true;
+            isAnimating = false;
+            winScreen.style.display = 'none';
+            rollBtn.disabled = false;
+            rollBtn.innerHTML = '<i class="fas fa-dice"></i> Roll Dice';
+            diceDisplay.innerHTML = getDiceIcon(1);
+            p1Ind.classList.add('active-turn'); p1Ind.classList.remove('inactive-turn');
+            p2Ind.classList.remove('active-turn'); p2Ind.classList.add('inactive-turn');
+            updateTokenPosition(tokenP1, 1);
+            updateTokenPosition(tokenP2, 1);
+        }
+
+        // Listeners
+        rollBtn.addEventListener('click', handleRoll);
+        restartBtn.addEventListener('click', resetGame);
+        window.addEventListener('resize', () => {
+            updateTokenPosition(tokenP1, p1Pos);
+            updateTokenPosition(tokenP2, p2Pos);
+        });
+
+        // Init
+        createBoard();
+        setTimeout(() => {
+            updateTokenPosition(tokenP1, 1);
+            updateTokenPosition(tokenP2, 1);
+        }, 50);
+    </script>
+</body>
+</html>
