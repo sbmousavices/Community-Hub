@@ -135,17 +135,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.8rem; /* Large size for clear visibility */
+            font-size: 2.8rem;
             cursor: pointer;
             position: relative;
             line-height: 1;
         }
 
-        /* Board Colors - Matching the image provided exactly */
         .square.light { background: #e8dcc4; }
         .square.dark { background: #5d4037; }
 
-        /* Highlights */
         .square.selected { background: rgba(212, 175, 55, 0.7) !important; }
         .square.valid-move::after {
             content: '';
@@ -167,12 +165,16 @@
             border-radius: 50%;
             box-sizing: border-box;
         }
+        
+        /* ✅ NEW: CHECK HIGHLIGHT */
+        .square.in-check {
+            background: rgba(239, 68, 68, 0.4) !important;
+            box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.8);
+        }
 
-        /* Piece Styling - Using Standard Unicode Chess Symbols */
         .piece {
             z-index: 2;
             transition: transform 0.1s;
-            /* Ensure pieces are centered */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -180,13 +182,11 @@
             height: 100%;
         }
         
-        /* White Pieces: Solid White with subtle shadow */
         .piece.white { 
             color: #ffffff; 
             text-shadow: 0 1px 3px rgba(0,0,0,0.6);
         }
         
-        /* Black Pieces: Solid Black/Dark Grey with subtle highlight */
         .piece.black { 
             color: #1a1a1a; 
             text-shadow: 0 0 2px rgba(255,255,255,0.3);
@@ -292,7 +292,7 @@
         </div>
     </div>
 
-    <!-- ✅ JAVASCRIPT LOGIC -->
+    <!-- ✅ JAVASCRIPT LOGIC WITH CHECK/CHECKMATE DETECTION -->
     <script>
         const boardEl = document.getElementById('board');
         const turnDisplay = document.getElementById('turn-display');
@@ -309,23 +309,21 @@
             b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }
         };
 
-        // Piece Values for AI
         const PIECE_VALUES = { 'p': 10, 'n': 30, 'b': 30, 'r': 50, 'q': 90, 'k': 900 };
 
-        // ✅ CORRECT INITIAL BOARD SETUP
         const INITIAL_BOARD = [
-            ['r','n','b','q','k','b','n','r'], // 0: Black Major
-            ['p','p','p','p','p','p','p','p'], // 1: Black Pawns
-            ['','','','','','','',''],         // 2
-            ['','','','','','','',''],         // 3
-            ['','','','','','','',''],         // 4
-            ['','','','','','','',''],         // 5
-            ['P','P','P','P','P','P','P','P'], // 6: White Pawns
-            ['R','N','B','Q','K','B','N','R']  // 7: White Major
+            ['r','n','b','q','k','b','n','r'],
+            ['p','p','p','p','p','p','p','p'],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['P','P','P','P','P','P','P','P'],
+            ['R','N','B','Q','K','B','N','R']
         ];
 
         let board = [];
-        let currentPlayer = 'w'; // 'w' or 'b'
+        let currentPlayer = 'w';
         let selectedSquare = null;
         let validMoves = [];
         let isGameOver = false;
@@ -367,11 +365,19 @@
                         if (board[r][c]) sq.classList.add('capture-move');
                         else sq.classList.add('valid-move');
                     }
+                    
+                    // ✅ HIGHLIGHT KING IF IN CHECK
+                    const piece = board[r][c];
+                    if (piece && piece.toLowerCase() === 'k') {
+                        const color = getPieceColor(piece);
+                        if (isKingInCheck(color)) {
+                            sq.classList.add('in-check');
+                        }
+                    }
 
-                    const pieceChar = board[r][c];
-                    if (pieceChar) {
-                        const color = getPieceColor(pieceChar);
-                        const type = pieceChar.toLowerCase();
+                    if (piece) {
+                        const color = getPieceColor(piece);
+                        const type = piece.toLowerCase();
                         const span = document.createElement('span');
                         span.className = `piece ${color === 'w' ? 'white' : 'black'}`;
                         span.innerText = PIECES[color][type];
@@ -405,6 +411,134 @@
                 validMoves = [];
                 renderBoard();
             }
+        }
+
+        // ✅ CORE CHECK/CHECKMATE LOGIC
+        
+        // Check if a specific square is attacked by the opponent
+        function isSquareAttacked(row, col, byColor) {
+            // Pawn attacks
+            const pawnDir = byColor === 'w' ? -1 : 1; // White pawns attack upwards (-1), black downwards (+1)
+            // Note: This logic assumes standard orientation. 
+            // Actually, white pawns are at bottom moving up (row decreases). So they attack row-1.
+            // Black pawns are at top moving down (row increases). So they attack row+1.
+            const attackRow = row + (byColor === 'w' ? 1 : -1); 
+            
+            if (attackRow >= 0 && attackRow < 8) {
+                if (col > 0) {
+                    const p = board[attackRow][col-1];
+                    if (p && p.toLowerCase() === 'p' && getPieceColor(p) === byColor) return true;
+                }
+                if (col < 7) {
+                    const p = board[attackRow][col+1];
+                    if (p && p.toLowerCase() === 'p' && getPieceColor(p) === byColor) return true;
+                }
+            }
+
+            // Knight attacks
+            const knightMoves = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+            for (let m of knightMoves) {
+                const nr = row + m[0], nc = col + m[1];
+                if (nr>=0 && nr<8 && nc>=0 && nc<8) {
+                    const p = board[nr][nc];
+                    if (p && p.toLowerCase() === 'n' && getPieceColor(p) === byColor) return true;
+                }
+            }
+
+            // King attacks (for adjacent kings)
+            const kingMoves = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+            for (let m of kingMoves) {
+                const nr = row + m[0], nc = col + m[1];
+                if (nr>=0 && nr<8 && nc>=0 && nc<8) {
+                    const p = board[nr][nc];
+                    if (p && p.toLowerCase() === 'k' && getPieceColor(p) === byColor) return true;
+                }
+            }
+
+            // Sliding pieces (Rook, Bishop, Queen)
+            const directions = [
+                {dr: -1, dc: 0, types: ['r','q']}, {dr: 1, dc: 0, types: ['r','q']},
+                {dr: 0, dc: -1, types: ['r','q']}, {dr: 0, dc: 1, types: ['r','q']},
+                {dr: -1, dc: -1, types: ['b','q']}, {dr: -1, dc: 1, types: ['b','q']},
+                {dr: 1, dc: -1, types: ['b','q']}, {dr: 1, dc: 1, types: ['b','q']}
+            ];
+
+            for (let d of directions) {
+                let nr = row + d.dr, nc = col + d.dc;
+                while (nr>=0 && nr<8 && nc>=0 && nc<8) {
+                    const p = board[nr][nc];
+                    if (p) {
+                        if (getPieceColor(p) === byColor && d.types.includes(p.toLowerCase())) return true;
+                        break; // Blocked by any piece
+                    }
+                    nr += d.dr; nc += d.dc;
+                }
+            }
+
+            return false;
+        }
+
+        function isKingInCheck(color) {
+            // Find King
+            let kRow, kCol;
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    if (board[r][c] === (color === 'w' ? 'K' : 'k')) {
+                        kRow = r; kCol = c;
+                        break;
+                    }
+                }
+            }
+            const opponent = color === 'w' ? 'b' : 'w';
+            return isSquareAttacked(kRow, kCol, opponent);
+        }
+
+        // Simulate a move and check if it leaves king in check
+        function wouldBeInCheck(fromR, fromC, toR, toC, color) {
+            const savedTo = board[toR][toC];
+            const savedFrom = board[fromR][fromC];
+            
+            board[toR][toC] = savedFrom;
+            board[fromR][fromC] = '';
+            
+            const inCheck = isKingInCheck(color);
+            
+            // Undo simulation
+            board[fromR][fromC] = savedFrom;
+            board[toR][toC] = savedTo;
+            
+            return inCheck;
+        }
+
+        // Get ONLY legal moves (that don't leave king in check)
+        function getLegalMoves(r, c, color) {
+            const rawMoves = [];
+            // Temporarily populate validMoves array using existing logic
+            // We need a temporary scope or copy of calculateValidMoves logic
+            // For simplicity, let's reuse calculateValidMoves but filter later
+            
+            // Save current global validMoves
+            const tempValidMoves = [...validMoves];
+            
+            calculateValidMoves(r, c, color);
+            const candidates = [...validMoves];
+            
+            // Restore global validMoves
+            validMoves = tempValidMoves;
+            
+            // Filter out moves that leave king in check
+            return candidates.filter(m => !wouldBeInCheck(r, c, m.r, m.c, color));
+        }
+
+        function hasAnyLegalMove(color) {
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    if (getPieceColor(board[r][c]) === color) {
+                        if (getLegalMoves(r, c, color).length > 0) return true;
+                    }
+                }
+            }
+            return false;
         }
 
         function calculateValidMoves(r, c, color) {
@@ -480,29 +614,33 @@
             selectedSquare = null;
             validMoves = [];
             currentPlayer = currentPlayer === 'w' ? 'b' : 'w';
-            updateStatus();
-            renderBoard();
-
-            if (isKingCaptured()) {
-                endGame(currentPlayer === 'w' ? 'b' : 'w');
+            
+            // ✅ CHECK FOR CHECKMATE AFTER MOVE
+            const opponent = currentPlayer;
+            const inCheck = isKingInCheck(opponent);
+            const hasMoves = hasAnyLegalMove(opponent);
+            
+            if (inCheck && !hasMoves) {
+                // CHECKMATE!
+                endGame(currentPlayer === 'w' ? 'b' : 'w', true);
+                updateStatus();
+                renderBoard();
+                return;
+            } else if (!inCheck && !hasMoves) {
+                // STALEMATE (Draw) - Optional, but good to have
+                endGame('draw', false);
+                updateStatus();
+                renderBoard();
                 return;
             }
+
+            updateStatus();
+            renderBoard();
 
             if (currentPlayer === 'b' && !isGameOver) {
                 isProcessing = true;
                 setTimeout(cpuMove, 800);
             }
-        }
-
-        function isKingCaptured() {
-            let wKing = false, bKing = false;
-            for(let r=0; r<8; r++) {
-                for(let c=0; c<8; c++) {
-                    if(board[r][c] === 'K') wKing = true;
-                    if(board[r][c] === 'k') bKing = true;
-                }
-            }
-            return !wKing || !bKing;
         }
 
         function cpuMove() {
@@ -511,14 +649,22 @@
                 for(let r=0; r<8; r++) {
                     for(let c=0; c<8; c++) {
                         if(getPieceColor(board[r][c]) === 'b') {
-                            calculateValidMoves(r, c, 'b');
-                            validMoves.forEach(m => {
+                            const legalMoves = getLegalMoves(r, c, 'b');
+                            legalMoves.forEach(m => {
                                 let score = 0;
                                 const target = board[m.r][m.c];
-                                if(target) {
-                                    score += PIECE_VALUES[target.toLowerCase()] || 0;
-                                }
-                                allMoves.push({from: {r,c}, to: m, score: score, capture: !!target});
+                                if(target) score += PIECE_VALUES[target.toLowerCase()] || 0;
+                                
+                                // Prefer moves that give check
+                                const savedTo = board[m.r][m.c];
+                                const savedFrom = board[r][c];
+                                board[m.r][m.c] = savedFrom;
+                                board[r][c] = '';
+                                if(isKingInCheck('w')) score += 50;
+                                board[r][c] = savedFrom;
+                                board[m.r][m.c] = savedTo;
+                                
+                                allMoves.push({from: {r,c}, to: m, score: score});
                             });
                         }
                     }
@@ -536,20 +682,26 @@
                     if (board[move.to.r][move.to.c] === 'p' && move.to.r === 7) board[move.to.r][move.to.c] = 'q';
 
                     currentPlayer = 'w';
+                    
+                    // ✅ CHECK FOR CHECKMATE AFTER CPU MOVE
+                    const inCheck = isKingInCheck('w');
+                    const hasMoves = hasAnyLegalMove('w');
+                    
+                    if (inCheck && !hasMoves) {
+                        endGame('b', true);
+                    } else if (!inCheck && !hasMoves) {
+                        endGame('draw', false);
+                    }
+                    
                     updateStatus();
                     renderBoard();
-
-                    if(isKingCaptured()) {
-                        endGame('b');
-                        return;
-                    }
                 } else {
-                    endGame('w');
-                    return;
+                    // CPU has no legal moves
+                    if(isKingInCheck('b')) endGame('w', true);
+                    else endGame('draw', false);
                 }
             } catch (e) {
                 console.error("CPU Move Error:", e);
-                endGame('w');
             } finally {
                 isProcessing = false;
             }
@@ -559,18 +711,25 @@
             const dot = turnDisplay.querySelector('.turn-dot');
             if(currentPlayer === 'w') {
                 turnDisplay.innerHTML = '<div class="turn-dot"></div> Your Turn (White)';
-                gameStatus.innerText = "Active";
+                if(isKingInCheck('w')) gameStatus.innerText = "⚠️ CHECK!";
+                else gameStatus.innerText = "Active";
             } else {
                 turnDisplay.innerHTML = '<div class="turn-dot black"></div> CPU Thinking...';
-                gameStatus.innerText = "Waiting";
+                if(isKingInCheck('b')) gameStatus.innerText = "️ CHECK!";
+                else gameStatus.innerText = "Waiting";
             }
         }
 
-        function endGame(winner) {
+        function endGame(winner, isCheckmate) {
             isGameOver = true;
             isProcessing = false;
-            resultTitle.innerText = winner === 'w' ? "YOU WIN!" : "CPU WINS!";
-            resultMsg.innerText = winner === 'w' ? "Checkmate! Excellent game." : "Better luck next time.";
+            if (winner === 'draw') {
+                resultTitle.innerText = "STALEMATE";
+                resultMsg.innerText = "The game is a draw.";
+            } else {
+                resultTitle.innerText = winner === 'w' ? "YOU WIN!" : "CPU WINS!";
+                resultMsg.innerText = isCheckmate ? "Checkmate! Excellent game." : "Better luck next time.";
+            }
             overlay.classList.add('active');
         }
 
