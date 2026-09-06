@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gold Backgammon | Behzad Mousavi Hub</title>
     
     <!-- ✅ FONTS & ICONS -->
@@ -23,7 +23,7 @@
             --border: rgba(212, 175, 55, 0.2);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         body {
             background-color: var(--bg-primary);
@@ -35,6 +35,7 @@
             padding-top: calc(var(--nav-height) + 20px);
             background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
             overflow-x: hidden;
+            touch-action: pan-y;
         }
 
         /* ✅ UNIFIED NAVIGATION BAR STYLES */
@@ -113,7 +114,7 @@
         }
         .stat-item span { color: var(--accent-light); margin-left: 4px; }
 
-        /* ✅ BOARD LAYOUT */
+        /* ✅ BOARD LAYOUT - OPTIMIZED FOR MOBILE */
         .board-container {
             display: flex;
             gap: 10px;
@@ -176,6 +177,12 @@
 
         .point.valid-move { box-shadow: inset 0 0 15px var(--accent); border: 1px solid var(--accent); }
         .point.selected { background: rgba(212, 175, 55, 0.2); }
+        
+        /* ✅ NEW: BEARING OFF ZONE HIGHLIGHT */
+        .point.bear-off-zone {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px dashed var(--accent);
+        }
 
         .checker {
             width: 85%;
@@ -305,25 +312,61 @@
         #overlay h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
         #overlay p { color: #fff; font-size: 1rem; margin-bottom: 20px; }
 
+        /* ✅ MOBILE OPTIMIZATIONS */
         @media (max-width: 768px) {
             .nav-links { display: none; } .mobile-menu-btn { display: block; }
             .game-header h1 { font-size: 1.4rem; } 
-            .game-wrapper { max-width: 95%; }
-            .board-container { max-width: 100%; aspect-ratio: 3/4; flex-direction: column; }
-            .bar-area { width: 100%; height: 40px; flex-direction: row; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); border-left: none; border-right: none; }
+            
+            .game-wrapper { max-width: 98%; padding: 0 10px; }
+            
+            .board-container { 
+                max-width: 100%; 
+                aspect-ratio: auto;
+                height: auto;
+                min-height: 400px;
+                flex-direction: column;
+                padding: 8px;
+                gap: 8px;
+            }
+            
+            .bar-area { 
+                width: 100%; height: 50px; flex-direction: row; 
+                border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); 
+                border-left: none; border-right: none; gap: 40px; padding: 0 20px;
+            }
+            
+            .board-half { width: 100%; height: 180px; }
+            .point { border-radius: 6px; }
+            .checker { width: 90%; margin: -2px 0; }
+            
             .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
+            .dice { width: 45px; height: 45px; font-size: 1.3rem; }
+            .action-btn { padding: 12px 15px; font-size: 0.9rem; }
+        }
+        
+        @media (max-width: 380px) {
+            .board-container { min-height: 350px; }
+            .board-half { height: 150px; }
+            .bar-area { height: 45px; gap: 30px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ✅ NAVIGATION BAR -->
+    <!-- ✅ NAVIGATION BAR WITH FULL LINKS -->
     <nav>
         <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
-            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="Logo"><span>Home</span>
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
         </a>
         <ul class="nav-links">
+            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
+            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
+            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
+            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
             <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
             <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
         </ul>
         <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
@@ -341,8 +384,8 @@
         </div>
 
         <div class="stats-bar">
-            <div class="stat-item">You (White): <span id="player-wins">0</span></div>
-            <div class="stat-item">CPU (Black): <span id="cpu-wins">0</span></div>
+            <div class="stat-item">You Points: <span id="player-wins">0</span></div>
+            <div class="stat-item">CPU Points: <span id="cpu-wins">0</span></div>
         </div>
         
         <div class="board-container">
@@ -361,6 +404,7 @@
 
         <div class="actions-row">
             <button id="undoBtn" class="action-btn secondary" disabled><i class="fas fa-rotate-left"></i> Undo</button>
+            <button id="newGameBtn" class="action-btn"><i class="fas fa-redo"></i> New Game</button>
             <button id="rollBtn" class="action-btn"><i class="fas fa-dice"></i> Roll Dice</button>
         </div>
         
@@ -373,7 +417,7 @@
         </div>
     </div>
 
-    <!-- ✅ JAVASCRIPT LOGIC -->
+    <!-- ✅ JAVASCRIPT LOGIC WITH FIXED ZERO-START & DICE -->
     <script>
         const leftHalfEl = document.getElementById('left-half');
         const rightHalfEl = document.getElementById('right-half');
@@ -383,8 +427,10 @@
         const dice2El = document.getElementById('dice2');
         const rollBtn = document.getElementById('rollBtn');
         const undoBtn = document.getElementById('undoBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
         const overlay = document.getElementById('overlay');
         const resultTitle = document.getElementById('result-title');
+        const resultMsg = document.getElementById('result-msg');
         const playAgainBtn = document.getElementById('playAgainBtn');
         const playerWinsEl = document.getElementById('player-wins');
         const cpuWinsEl = document.getElementById('cpu-wins');
@@ -392,33 +438,38 @@
         // Game State
         let board = Array(24).fill(null).map(() => ({ count: 0, color: null }));
         let bar = { white: 0, black: 0 };
-        let off = { white: 0, black: 0 };
+        let off = { white: 0, black: 0 }; 
         
         let currentPlayer = 'white';
         let dice = [];
         let selectedPoint = null;
         let validMoves = [];
-        let gameActive = false;
-        let isProcessing = false; // Prevent clicks during animations/CPU turn
+        let gameActive = false; // ✅ STARTS AS FALSE
+        let isProcessing = false;
         
         // ✅ UNDO SYSTEM STATE
         let historyStack = [];
 
-        let stats = JSON.parse(localStorage.getItem('bgStats')) || { player: 0, cpu: 0 };
-        updateStatsUI();
+        // ✅ SAFE STATS INITIALIZATION (ALWAYS STARTS AT 0 ON FRESH LOAD)
+        let stats = { player: 0, cpu: 0 };
+        
+        function updateStatsUI() {
+            playerWinsEl.innerText = stats.player;
+            cpuWinsEl.innerText = stats.cpu;
+        }
 
         function initBoard() {
             board = Array(24).fill(null).map(() => ({ count: 0, color: null }));
             bar = { white: 0, black: 0 };
-            off = { white: 0, black: 0 };
+            off = { white: 0, black: 0 }; // ✅ ENSURE OFF IS ZERO
             
-            // WHITE Setup
+            // WHITE Setup (Standard)
             board[23] = { count: 2, color: 'white' };
             board[12] = { count: 5, color: 'white' };
             board[7]  = { count: 3, color: 'white' };
             board[5]  = { count: 5, color: 'white' };
             
-            // BLACK Setup
+            // BLACK Setup (Standard)
             board[0]  = { count: 2, color: 'black' };
             board[11] = { count: 5, color: 'black' };
             board[16] = { count: 3, color: 'black' };
@@ -446,9 +497,15 @@
         function createPointElement(arrIdx, posClass, labelNum) {
             const point = document.createElement('div');
             point.className = `point ${posClass}`;
+            
             if(validMoves.includes(arrIdx)) point.classList.add('valid-move');
             if(selectedPoint === arrIdx) point.classList.add('selected');
             
+            if(canBearOff(currentPlayer) && validMoves.includes('off') && 
+               ((currentPlayer === 'white' && arrIdx >= 18) || (currentPlayer === 'black' && arrIdx <= 5))) {
+                point.classList.add('bear-off-zone');
+            }
+
             const num = document.createElement('span');
             num.className = 'point-num';
             num.innerText = labelNum;
@@ -480,11 +537,8 @@
             container.appendChild(c);
         }
 
-        // ✅ SAVE STATE FOR UNDO
         function saveState() {
-            // Only save if it's player's turn and game is active
             if(currentPlayer !== 'white' || !gameActive) return;
-            
             historyStack.push({
                 board: JSON.parse(JSON.stringify(board)),
                 bar: {...bar},
@@ -493,23 +547,18 @@
                 selectedPoint: selectedPoint,
                 validMoves: [...validMoves]
             });
-            
             undoBtn.disabled = false;
         }
 
-        // ✅ RESTORE STATE
         function restoreState() {
             if(historyStack.length === 0 || isProcessing) return;
-            
             const lastState = historyStack.pop();
-            
             board = JSON.parse(JSON.stringify(lastState.board));
             bar = {...lastState.bar};
             off = {...lastState.off};
             dice = [...lastState.dice];
             selectedPoint = lastState.selectedPoint;
             validMoves = [...lastState.validMoves];
-            
             undoBtn.disabled = historyStack.length === 0;
             updateDiceUI();
             renderBoard();
@@ -517,11 +566,8 @@
 
         function rollDiceAction() {
             if(!gameActive || currentPlayer !== 'white' || isProcessing) return;
-            
-            // Clear history when rolling new dice (can't undo previous turn's moves after rolling)
             historyStack = [];
             undoBtn.disabled = true;
-            
             isProcessing = true;
             rollBtn.disabled = true;
             dice1El.classList.add('rolling');
@@ -531,27 +577,30 @@
                 dice1El.classList.remove('rolling');
                 dice2El.classList.remove('rolling');
                 
+                // ✅ TRUE RANDOM DICE
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 const d2 = Math.floor(Math.random() * 6) + 1;
-                
                 dice = [d1, d2];
                 if(d1 === d2) dice = [d1, d1, d1, d1];
                 
                 updateDiceUI();
                 isProcessing = false;
-                
                 if(!hasValidMoves('white')) {
                     setTimeout(() => switchTurn(), 1000);
                 } else {
-                    rollBtn.disabled = true; // Keep disabled until turn ends
+                    rollBtn.disabled = true;
                 }
             }, 600);
         }
 
         function updateDiceUI() {
             const icons = ['one', 'two', 'three', 'four', 'five', 'six'];
-            dice1El.innerHTML = `<i class="fas fa-dice-${icons[dice[0]-1]}"></i>`;
-            dice2El.innerHTML = dice.length > 1 ? `<i class="fas fa-dice-${icons[dice[1]-1]}"></i>` : '';
+            // ✅ SAFE INDEX ACCESS FOR DICE DISPLAY
+            const d1 = (dice[0] && dice[0] >= 1 && dice[0] <= 6) ? dice[0] - 1 : 0;
+            const d2 = (dice[1] && dice[1] >= 1 && dice[1] <= 6) ? dice[1] - 1 : 0;
+            
+            dice1El.innerHTML = `<i class="fas fa-dice-${icons[d1]}"></i>`;
+            dice2El.innerHTML = dice.length > 1 ? `<i class="fas fa-dice-${icons[d2]}"></i>` : '';
             
             if(dice.length === 0) {
                 dice1El.classList.add('used');
@@ -565,14 +614,26 @@
         function handlePointClick(index) {
             if(!gameActive || currentPlayer !== 'white' || isProcessing || dice.length === 0) return;
 
+            // Handle bearing off by clicking the same piece again
+            if(validMoves.includes('off') && index === selectedPoint) {
+                saveState();
+                executeMove(selectedPoint, 'off');
+                selectedPoint = null;
+                validMoves = [];
+                renderBoard();
+                if(dice.length === 0 || !hasValidMoves('white')) {
+                    isProcessing = true;
+                    setTimeout(() => switchTurn(), 500);
+                }
+                return;
+            }
+
             if(validMoves.includes(index)) {
-                saveState(); // Save BEFORE executing move
+                saveState();
                 executeMove(selectedPoint, index);
                 selectedPoint = null;
                 validMoves = [];
                 renderBoard();
-                
-                // Check if turn should end
                 if(dice.length === 0 || !hasValidMoves('white')) {
                     isProcessing = true;
                     setTimeout(() => switchTurn(), 500);
@@ -588,7 +649,6 @@
                 calculateValidMoves(index, 'white');
                 renderBoard();
             } else {
-                // Deselect if clicking empty or enemy
                 selectedPoint = null;
                 validMoves = [];
                 renderBoard();
@@ -602,95 +662,71 @@
             renderBoard();
         });
 
-        // ✅ FIXED COMBINED MOVES LOGIC
-        function calculateValidMoves(fromIndex, player) {
-            validMoves = [];
-            const direction = player === 'white' ? -1 : 1;
-            
-            // Get unique single dice values
-            const uniqueDice = [...new Set(dice)];
-            
-            // Check single die moves first
-            uniqueDice.forEach(die => {
-                checkMoveValidity(fromIndex, die, player, direction);
-            });
-
-            // ✅ CHECK COMBINED MOVES (Sum of two dice) - ONLY IF PATH IS CLEAR
-            if(dice.length >= 2) {
-                for(let i=0; i<dice.length; i++) {
-                    for(let j=i+1; j<dice.length; j++) {
-                        const die1 = dice[i];
-                        const die2 = dice[j];
-                        const combinedDie = die1 + die2;
-                        
-                        // CRITICAL FIX: Verify intermediate point is reachable
-                        // Calculate intermediate point based on first die
-                        let intermediateIndex;
-                        if(fromIndex === -1) {
-                            // From bar: enter with die1 first
-                            intermediateIndex = player === 'white' ? 24 - die1 : die1 - 1;
-                        } else {
-                            intermediateIndex = fromIndex + (die1 * direction);
-                        }
-                        
-                        // Check if intermediate point is valid AND destination is valid
-                        if(isValidPoint(intermediateIndex, player)) {
-                            checkMoveValidity(fromIndex, combinedDie, player, direction, true);
-                        }
-                        
-                        // Also try reverse order (die2 then die1)
-                        let intermediateIndex2;
-                        if(fromIndex === -1) {
-                            intermediateIndex2 = player === 'white' ? 24 - die2 : die2 - 1;
-                        } else {
-                            intermediateIndex2 = fromIndex + (die2 * direction);
-                        }
-                        
-                        if(isValidPoint(intermediateIndex2, player)) {
-                            checkMoveValidity(fromIndex, combinedDie, player, direction, true);
-                        }
-                    }
-                }
+        function canBearOff(player) {
+            if(player === 'white') {
+                if(bar.white > 0) return false;
+                for(let i=6; i<24; i++) if(board[i].color === 'white') return false;
+                return true;
+            } else {
+                if(bar.black > 0) return false;
+                for(let i=0; i<18; i++) if(board[i].color === 'black') return false;
+                return true;
             }
         }
 
-        // Helper to check if a point is reachable (not blocked by opponent)
+        function calculateValidMoves(fromIndex, player) {
+            validMoves = [];
+            const direction = player === 'white' ? -1 : 1;
+            const uniqueDice = [...new Set(dice)];
+            
+            uniqueDice.forEach(die => checkMoveValidity(fromIndex, die, player, direction));
+
+            if(dice.length >= 2) {
+                for(let i=0; i<dice.length; i++) {
+                    for(let j=i+1; j<dice.length; j++) {
+                        const die1 = dice[i]; const die2 = dice[j]; const combinedDie = die1 + die2;
+                        let intermediateIndex = (fromIndex === -1) ? (player === 'white' ? 24 - die1 : die1 - 1) : fromIndex + (die1 * direction);
+                        if(isValidPoint(intermediateIndex, player)) checkMoveValidity(fromIndex, combinedDie, player, direction, true);
+                        
+                        let intermediateIndex2 = (fromIndex === -1) ? (player === 'white' ? 24 - die2 : die2 - 1) : fromIndex + (die2 * direction);
+                        if(isValidPoint(intermediateIndex2, player)) checkMoveValidity(fromIndex, combinedDie, player, direction, true);
+                    }
+                }
+            }
+            
+            // ✅ BEAR OFF LOGIC
+            if(canBearOff(player)) {
+                uniqueDice.forEach(die => {
+                    if(fromIndex === -1) return; 
+                    let targetIndex = fromIndex + (die * direction);
+                    let isOff = (player === 'white' && targetIndex < 0) || (player === 'black' && targetIndex > 23);
+                    
+                    if(isOff) {
+                        const distToEdge = player === 'white' ? (fromIndex + 1) : (24 - fromIndex);
+                        if(die === distToEdge) {
+                            validMoves.push('off');
+                        } else if(die > distToEdge) {
+                            let hasCheckersBehind = false;
+                            if(player === 'white') {
+                                for(let k=fromIndex+1; k<=5; k++) if(board[k].color === 'white') hasCheckersBehind = true;
+                            } else {
+                                for(let k=18; k<fromIndex; k++) if(board[k].color === 'black') hasCheckersBehind = true;
+                            }
+                            if(!hasCheckersBehind) validMoves.push('off');
+                        }
+                    }
+                });
+            }
+        }
+
         function isValidPoint(index, player) {
-            if(index < 0 || index > 23) return false; // Out of bounds (but might be bearing off)
+            if(index < 0 || index > 23) return false;
             const target = board[index];
-            // Valid if: Empty, Own Color, OR Opponent Blot (count==1)
             return target.count === 0 || target.color === player || (target.color !== player && target.count === 1);
         }
 
         function checkMoveValidity(fromIndex, distance, player, direction, isCombined=false) {
-            let targetIndex;
-            
-            if(fromIndex === -1) {
-                targetIndex = player === 'white' ? 24 - distance : distance - 1;
-            } else {
-                targetIndex = fromIndex + (distance * direction);
-            }
-
-            // Check Bearing Off
-            let isBearingOff = false;
-            if(player === 'white') {
-                if(targetIndex < 0) {
-                    if(canBearOff('white')) isBearingOff = true;
-                    else return;
-                }
-            } else {
-                if(targetIndex > 23) {
-                    if(canBearOff('black')) isBearingOff = true;
-                    else return;
-                }
-            }
-
-            if(isBearingOff) {
-                if(!validMoves.includes('off')) validMoves.push('off');
-                return;
-            }
-
-            // Check Target Validity
+            let targetIndex = (fromIndex === -1) ? (player === 'white' ? 24 - distance : distance - 1) : fromIndex + (distance * direction);
             if(targetIndex >= 0 && targetIndex <= 23) {
                 const target = board[targetIndex];
                 if(target.count === 0 || target.color === player || (target.color !== player && target.count === 1)) {
@@ -699,24 +735,11 @@
             }
         }
 
-        function canBearOff(player) {
-            if(player === 'white') {
-                if(bar.white > 0) return false;
-                for(let i=6; i<24; i++) if(board[i].color === 'white') return false;
-            } else {
-                if(bar.black > 0) return false;
-                for(let i=0; i<18; i++) if(board[i].color === 'black') return false;
-            }
-            return true;
-        }
-
         function hasValidMoves(player) {
             if(bar[player] > 0) {
                 calculateValidMoves(-1, player);
-                if(validMoves.length > 0) return true;
-                return false;
+                return validMoves.length > 0;
             }
-            
             for(let i=0; i<24; i++) {
                 if(board[i].color === player && board[i].count > 0) {
                     calculateValidMoves(i, player);
@@ -726,99 +749,77 @@
             return false;
         }
 
-        // ✅ EXECUTE MOVE WITH COMBINED DIE SUPPORT
         function executeMove(from, to) {
             const player = currentPlayer;
             const direction = player === 'white' ? -1 : 1;
+            let isBearingOff = (to === 'off');
             
-            // Calculate actual distance moved
-            let distance = 0;
-            if(from === -1) {
-                distance = player === 'white' ? (24 - to) : (to + 1);
-            } else if(to === 'off') {
-                // For bearing off, use exact distance or largest die
-                const homeStart = player === 'white' ? 0 : 23;
-                distance = Math.abs(from - homeStart) + 1;
-            } else {
-                distance = Math.abs(to - from);
-            }
-
-            // Find and remove the correct die(s)
-            let removed = false;
-            
-            // Try single die first
-            if(distance <= 6 && dice.includes(distance)) {
-                const idx = dice.indexOf(distance);
-                dice.splice(idx, 1);
-                removed = true;
-            } 
-            // Try combined move
-            else if(dice.length >= 2) {
-                for(let i=0; i<dice.length; i++) {
-                    for(let j=i+1; j<dice.length; j++) {
-                        if(dice[i] + dice[j] === distance) {
-                            dice.splice(j, 1);
-                            dice.splice(i, 1);
-                            removed = true;
-                            break;
-                        }
-                    }
-                    if(removed) break;
+            if(isBearingOff) {
+                const distToEdge = player === 'white' ? (from + 1) : (24 - from);
+                let dieIdx = dice.indexOf(distToEdge);
+                
+                if(dieIdx === -1) {
+                    let candidates = dice.map((d, i) => ({val: d, idx: i})).filter(x => x.val >= distToEdge);
+                    if(candidates.length > 0) {
+                        candidates.sort((a,b) => a.val - b.val);
+                        dieIdx = candidates[0].idx;
+                    } else { dieIdx = 0; }
                 }
-            }
-            
-            // Fallback for bearing off edge cases
-            if(!removed && dice.length > 0) {
-                dice.sort((a,b) => b-a);
-                dice.shift();
-            }
-
-            // Update Source
-            if(from === -1) {
-                bar[player]--;
-            } else {
+                
+                dice.splice(dieIdx, 1);
                 board[from].count--;
                 if(board[from].count === 0) board[from].color = null;
-            }
-
-            // Update Destination
-            if(to === 'off') {
                 off[player]++;
-                checkWinCondition();
+                
+                // ✅ CHECK WIN & CALCULATE POINTS (GAMMON/MARS)
+                if(off[player] === 15) {
+                    endGame(player);
+                    return;
+                }
+                
             } else {
+                let distance = (from === -1) ? (player === 'white' ? (24 - to) : (to + 1)) : Math.abs(to - from);
+                let removed = false;
+                
+                if(distance <= 6 && dice.includes(distance)) {
+                    dice.splice(dice.indexOf(distance), 1);
+                    removed = true;
+                } else if(dice.length >= 2) {
+                    for(let i=0; i<dice.length; i++) {
+                        for(let j=i+1; j<dice.length; j++) {
+                            if(dice[i] + dice[j] === distance) {
+                                dice.splice(j, 1); dice.splice(i, 1);
+                                removed = true; break;
+                            }
+                        }
+                        if(removed) break;
+                    }
+                }
+                if(!removed && dice.length > 0) { dice.sort((a,b) => b-a); dice.shift(); }
+
+                if(from === -1) bar[player]--;
+                else { board[from].count--; if(board[from].count === 0) board[from].color = null; }
+
                 const target = board[to];
-                // Hit logic
                 if(target.count === 1 && target.color !== player) {
                     bar[target.color]++;
-                    target.count = 1;
-                    target.color = player;
+                    target.count = 1; target.color = player;
                 } else {
-                    // Stacking logic
-                    target.count++;
-                    target.color = player;
+                    target.count++; target.color = player;
                 }
             }
-            
             updateDiceUI();
         }
 
         function switchTurn() {
             isProcessing = false;
             currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
-            dice = [];
-            selectedPoint = null;
-            validMoves = [];
-            historyStack = []; // Clear undo history on turn switch
-            undoBtn.disabled = true;
-            rollBtn.disabled = currentPlayer !== 'white';
-            
+            dice = []; selectedPoint = null; validMoves = []; historyStack = [];
+            undoBtn.disabled = true; rollBtn.disabled = currentPlayer !== 'white';
             dice1El.innerHTML = '<i class="fas fa-dice-one"></i>';
             dice2El.innerHTML = '<i class="fas fa-dice-two"></i>';
-            dice1El.classList.remove('used');
-            dice2El.classList.remove('used');
-
+            dice1El.classList.remove('used'); dice2El.classList.remove('used');
             renderBoard();
-
             if(currentPlayer === 'black') {
                 isProcessing = true;
                 setTimeout(cpuTurn, 1000);
@@ -827,20 +828,15 @@
 
         function cpuTurn() {
             if(!gameActive) return;
-
             if(dice.length === 0) {
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 const d2 = Math.floor(Math.random() * 6) + 1;
                 dice = d1 === d2 ? [d1,d1,d1,d1] : [d1,d2];
                 updateDiceUI();
             }
-
-            let moved = false;
-            let attempts = 0;
-            
+            let moved = false; let attempts = 0;
             while(!moved && attempts < 50 && dice.length > 0) {
                 attempts++;
-                
                 let source = -1;
                 if(bar.black > 0) source = -1;
                 else {
@@ -849,72 +845,96 @@
                     if(occupied.length === 0) break;
                     source = occupied[Math.floor(Math.random() * occupied.length)];
                 }
-
                 calculateValidMoves(source, 'black');
                 if(validMoves.length > 0) {
-                    const dest = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    let dest = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    if(validMoves.includes('off')) dest = 'off';
                     executeMove(source, dest);
-                    moved = true;
-                    renderBoard();
+                    moved = true; renderBoard();
                 }
             }
-
-            if(!moved || dice.length === 0) {
-                setTimeout(() => switchTurn(), 1000);
-            } else {
-                setTimeout(() => cpuTurn(), 800);
-            }
+            if(!moved || dice.length === 0) setTimeout(() => switchTurn(), 1000);
+            else setTimeout(() => cpuTurn(), 800);
         }
 
-        function checkWinCondition() {
-            if(off.white === 15) endGame('white');
-            else if(off.black === 15) endGame('black');
-        }
-
+        // ✅ UPDATED END GAME LOGIC WITH GAMMON/MARS SUPPORT
         function endGame(winner) {
             gameActive = false;
             isProcessing = false;
-            if(winner === 'white') {
-                resultTitle.innerText = "YOU WIN!";
-                resultTitle.style.color = "#f4d06f";
-                stats.player++;
-            } else {
-                resultTitle.innerText = "CPU WINS!";
-                resultTitle.style.color = "#a0aec0";
-                stats.cpu++;
+            const loser = winner === 'white' ? 'black' : 'white';
+            
+            let points = 1;
+            let winType = "Normal Win";
+            
+            if(off[loser] === 0) {
+                let hasPiecesInEnemyHome = false;
+                if(loser === 'black') {
+                    if(bar.black > 0) hasPiecesInEnemyHome = true;
+                    for(let i=0; i<=5; i++) if(board[i].color === 'black') hasPiecesInEnemyHome = true;
+                } else {
+                    if(bar.white > 0) hasPiecesInEnemyHome = true;
+                    for(let i=18; i<=23; i++) if(board[i].color === 'white') hasPiecesInEnemyHome = true;
+                }
+                
+                if(hasPiecesInEnemyHome) {
+                    points = 3;
+                    winType = "MARS! (Triple)";
+                } else {
+                    points = 2;
+                    winType = "GAMMON! (Double)";
+                }
             }
+
+            if(winner === 'white') {
+                resultTitle.innerText = `YOU WIN! (+${points})`;
+                resultTitle.style.color = "#f4d06f";
+                resultMsg.innerText = winType;
+                stats.player += points;
+            } else {
+                resultTitle.innerText = `CPU WINS! (+${points})`;
+                resultTitle.style.color = "#a0aec0";
+                resultMsg.innerText = winType;
+                stats.cpu += points;
+            }
+            
             localStorage.setItem('bgStats', JSON.stringify(stats));
             updateStatsUI();
             overlay.classList.add('active');
         }
 
-        function updateStatsUI() {
-            playerWinsEl.innerText = stats.player;
-            cpuWinsEl.innerText = stats.cpu;
-        }
-
+        // ✅ NEW GAME FUNCTION - TRUE RESET
         function resetGame() {
-            gameActive = true;
-            currentPlayer = 'white';
+            gameActive = true; 
+            currentPlayer = 'white'; 
             dice = [];
-            selectedPoint = null;
-            validMoves = [];
+            selectedPoint = null; 
+            validMoves = []; 
             historyStack = [];
-            isProcessing = false;
-            undoBtn.disabled = true;
+            isProcessing = false; 
+            undoBtn.disabled = true; 
             rollBtn.disabled = false;
             overlay.classList.remove('active');
+            
+            // ✅ RE-INITIALIZE BOARD AND RESET OFF COUNTERS
             initBoard();
+            
+            // ✅ RESET DICE VISUALS TO NEUTRAL
+            dice1El.innerHTML = '<i class="fas fa-dice-one"></i>';
+            dice2El.innerHTML = '<i class="fas fa-dice-two"></i>';
+            dice1El.classList.remove('used', 'rolling');
+            dice2El.classList.remove('used', 'rolling');
         }
 
         // Event Listeners
         rollBtn.addEventListener('click', rollDiceAction);
         undoBtn.addEventListener('click', restoreState);
+        newGameBtn.addEventListener('click', resetGame);
         playAgainBtn.addEventListener('click', resetGame);
 
-        // Init
+        // ✅ INITIAL SETUP WITHOUT STARTING GAME OR LOADING OLD SCORES
         initBoard();
-        gameActive = true;
+        updateStatsUI(); // Shows 0-0 initially
+        // gameActive remains false until user clicks Roll Dice or New Game
     </script>
 </body>
 </html>
