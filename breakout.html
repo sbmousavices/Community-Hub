@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Breakout Gold | Behzad Mousavi Hub</title>
     
     <!-- ✅ FONTS & ICONS -->
@@ -23,7 +23,7 @@
             --border: rgba(212, 175, 55, 0.2);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         body {
             background-color: var(--bg-primary);
@@ -34,6 +34,8 @@
             align-items: center;
             padding-top: calc(var(--nav-height) + 30px);
             background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+            touch-action: pan-y; /* ✅ ALLOW VERTICAL SCROLL ONLY OUTSIDE GAME */
         }
 
         /* ✅ UNIFIED NAVIGATION BAR STYLES */
@@ -99,14 +101,20 @@
         .score-board { font-size: 1.3rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 15px; }
         .score-board span { color: var(--accent-light); font-size: 1.5rem; }
 
-        /* ✅ CANVAS STYLING WITH VINTAGE FRAME */
+        /* ✅ CANVAS STYLING WITH VINTAGE FRAME - OPTIMIZED FOR TOUCH */
         canvas {
-            background: #050b14; border: 4px double var(--accent); border-radius: 4px;
+            background: #050b14; 
+            border: 4px double var(--accent); 
+            border-radius: 4px;
             box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.15);
-            display: block; max-width: 100%; height: auto; cursor: none;
+            display: block; 
+            max-width: 100%; 
+            height: auto; 
+            cursor: crosshair; /* ✅ CHANGE CURSOR FOR BETTER UX */
+            touch-action: none; /* ✅ PREVENT DEFAULT TOUCH BEHAVIORS ON CANVAS */
         }
 
-        /* ✅ UNIFIED START BUTTON STYLE (MATCHES SNAKE GAME) */
+        /* ✅ UNIFIED START BUTTON STYLE */
         .start-btn {
             margin-top: 20px; padding: 12px 30px;
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
@@ -118,13 +126,14 @@
         .start-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6); }
         .start-btn:active { transform: translateY(-1px); }
 
-        .controls-hint { font-size: 0.85rem; color: var(--text-secondary); opacity: 0.7; margin-top: 10px; }
+        .controls-hint { font-size: 0.85rem; color: var(--text-secondary); opacity: 0.7; margin-top: 10px; text-align: center; }
 
         @media (max-width: 768px) {
             .nav-links { display: none; } .mobile-menu-btn { display: block; }
             .game-header h1 { font-size: 1.6rem; } 
-            .game-wrapper { max-width: 95%; }
+            .game-wrapper { max-width: 98%; padding: 0 10px; }
             .back-to-main-btn { top: calc(var(--nav-height) + 20px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
+            .controls-hint { font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -164,10 +173,10 @@
         <canvas id="gameCanvas" width="600" height="500"></canvas>
         
         <button id="startBtn" class="start-btn"><i class="fas fa-play"></i> Start Game</button>
-        <div class="controls-hint">Use Mouse or Arrow Keys to Move Paddle • Space to Pause</div>
+        <div class="controls-hint">Touch & Drag or Use Arrow Keys to Move Paddle • Space to Pause</div>
     </div>
 
-    <!-- ✅ COMPLETE JAVASCRIPT LOGIC -->
+    <!-- ✅ COMPLETE JAVASCRIPT LOGIC WITH MOBILE OPTIMIZATION -->
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -183,8 +192,8 @@
         // Ball
         const ball = { x: 300, y: 250, dx: 4, dy: -4, radius: 8 };
         
-        // Paddle
-        const paddle = { width: 100, height: 12, x: 250, speed: 8 };
+        // ✅ LARGER PADDLE FOR MOBILE TOUCH
+        const paddle = { width: 120, height: 12, x: 240, speed: 8 };
         
         // Bricks
         const brickRowCount = 5;
@@ -220,7 +229,35 @@
             gameLoop();
             document.addEventListener('keydown', keyDownEvent);
             document.addEventListener('keyup', keyUpEvent);
+            
+            // ✅ MOUSE HANDLER (DESKTOP)
             document.addEventListener('mousemove', mouseMoveHandler);
+            
+            // ✅ TOUCH HANDLERS (MOBILE) - ADDED FOR SMOOTH CONTROL
+            canvas.addEventListener('touchstart', handleTouch, {passive: false});
+            canvas.addEventListener('touchmove', handleTouch, {passive: false});
+        }
+
+        // ✅ NEW: TOUCH HANDLER FOR MOBILE
+        function handleTouch(e) {
+            if (!isGameRunning || isPaused) return;
+            e.preventDefault(); // ✅ PREVENT SCROLLING WHILE PLAYING
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            
+            // Calculate scale factor in case canvas is resized via CSS
+            const scaleX = canvas.width / rect.width;
+            
+            const relativeX = (touch.clientX - rect.left) * scaleX;
+            
+            if(relativeX > 0 && relativeX < canvas.width) {
+                paddle.x = relativeX - paddle.width/2;
+                
+                // Keep paddle within bounds
+                if (paddle.x < 0) paddle.x = 0;
+                if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
+            }
         }
 
         function gameLoop() {
@@ -252,16 +289,21 @@
                 return;
             }
 
-            // Paddle Collision
+            // ✅ IMPROVED PADDLE COLLISION FOR BETTER BOUNCE ANGLE
             if(ball.y + ball.radius > canvas.height - paddle.height - 10 && 
                ball.y - ball.radius < canvas.height - 10 &&
                ball.x > paddle.x && 
                ball.x < paddle.x + paddle.width) {
                 
-                let hitPoint = ball.x - (paddle.x + paddle.width / 2);
-                ball.dx = hitPoint * 0.15; 
-                ball.dy = -Math.abs(ball.dy);
-                ball.dy *= 1.02; // Speed up slightly
+                // Calculate hit position relative to paddle center (-1 to 1)
+                let hitPoint = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
+                
+                // Adjust bounce angle based on where ball hits paddle
+                ball.dx = hitPoint * 5; // Max horizontal speed
+                ball.dy = -Math.abs(ball.dy); // Always bounce up
+                
+                // Slight speed increase
+                if (Math.abs(ball.dy) < 8) ball.dy *= 1.02;
             }
 
             // Brick Collision
@@ -372,9 +414,16 @@
         }
 
         function mouseMoveHandler(e) {
-            const relativeX = e.clientX - canvas.offsetLeft;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const relativeX = (e.clientX - rect.left) * scaleX;
+            
             if(relativeX > 0 && relativeX < canvas.width) {
                 paddle.x = relativeX - paddle.width/2;
+                
+                // Keep paddle within bounds
+                if (paddle.x < 0) paddle.x = 0;
+                if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
             }
         }
 
