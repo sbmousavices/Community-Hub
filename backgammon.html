@@ -35,7 +35,7 @@
             padding-top: calc(var(--nav-height) + 20px);
             background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
             overflow-x: hidden;
-            touch-action: pan-y;
+            touch-action: pan-y; /* ✅ ALLOW VERTICAL SCROLL ONLY */
         }
 
         /* ✅ UNIFIED NAVIGATION BAR STYLES */
@@ -114,7 +114,7 @@
         }
         .stat-item span { color: var(--accent-light); margin-left: 4px; }
 
-        /* ✅ BOARD LAYOUT - OPTIMIZED FOR MOBILE */
+        /* ✅ BOARD LAYOUT - FIXED HORIZONTAL FOR MOBILE */
         .board-container {
             display: flex;
             gap: 10px;
@@ -127,6 +127,8 @@
             padding: 10px;
             box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
             position: relative;
+            /* ✅ PREVENT CONTENT FROM BREAKING LAYOUT */
+            overflow: hidden; 
         }
 
         .bar-area {
@@ -312,42 +314,46 @@
         #overlay h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
         #overlay p { color: #fff; font-size: 1rem; margin-bottom: 20px; }
 
-        /* ✅ MOBILE OPTIMIZATIONS */
+        /* ✅ MOBILE OPTIMIZATIONS - HORIZONTAL LAYOUT PRESERVED */
         @media (max-width: 768px) {
             .nav-links { display: none; } .mobile-menu-btn { display: block; }
             .game-header h1 { font-size: 1.4rem; } 
             
-            .game-wrapper { max-width: 98%; padding: 0 10px; }
+            .game-wrapper { 
+                max-width: 100%; 
+                padding: 0 10px; 
+                /* ✅ SCALE DOWN ENTIRE GAME TO FIT WIDTH */
+                transform-origin: top center;
+            }
             
+            /* ✅ FORCE HORIZONTAL BOARD ON MOBILE */
             .board-container { 
                 max-width: 100%; 
-                aspect-ratio: auto;
-                height: auto;
-                min-height: 400px;
-                flex-direction: column;
+                aspect-ratio: 4 / 3; /* ✅ KEEP ASPECT RATIO */
                 padding: 8px;
-                gap: 8px;
+                gap: 6px;
             }
             
             .bar-area { 
-                width: 100%; height: 50px; flex-direction: row; 
-                border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); 
-                border-left: none; border-right: none; gap: 40px; padding: 0 20px;
+                width: 30px; /* ✅ SLIGHTLY SMALLER BAR */
+                gap: 15px;
             }
             
-            .board-half { width: 100%; height: 180px; }
-            .point { border-radius: 6px; }
-            .checker { width: 90%; margin: -2px 0; }
+            .board-half { gap: 1px; }
+            .point { border-radius: 3px; }
+            .checker { width: 88%; margin: -2px 0; } /* ✅ OPTIMIZED TOUCH SIZE */
             
             .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
             .dice { width: 45px; height: 45px; font-size: 1.3rem; }
             .action-btn { padding: 12px 15px; font-size: 0.9rem; }
-        }
-        
-        @media (max-width: 380px) {
-            .board-container { min-height: 350px; }
-            .board-half { height: 150px; }
-            .bar-area { height: 45px; gap: 30px; }
+            
+            /* ✅ ADJUST SCALE BASED ON SCREEN WIDTH */
+            @media (max-width: 400px) {
+                .game-wrapper { transform: scale(0.9); margin-bottom: -10%; }
+            }
+            @media (max-width: 350px) {
+                .game-wrapper { transform: scale(0.85); margin-bottom: -15%; }
+            }
         }
     </style>
 </head>
@@ -417,7 +423,7 @@
         </div>
     </div>
 
-    <!-- ✅ JAVASCRIPT LOGIC WITH FIXED ZERO-START & DICE -->
+    <!-- ✅ JAVASCRIPT LOGIC (UNCHANGED) -->
     <script>
         const leftHalfEl = document.getElementById('left-half');
         const rightHalfEl = document.getElementById('right-half');
@@ -444,13 +450,10 @@
         let dice = [];
         let selectedPoint = null;
         let validMoves = [];
-        let gameActive = false; // ✅ STARTS AS FALSE
+        let gameActive = false;
         let isProcessing = false;
         
-        // ✅ UNDO SYSTEM STATE
         let historyStack = [];
-
-        // ✅ SAFE STATS INITIALIZATION (ALWAYS STARTS AT 0 ON FRESH LOAD)
         let stats = { player: 0, cpu: 0 };
         
         function updateStatsUI() {
@@ -461,15 +464,13 @@
         function initBoard() {
             board = Array(24).fill(null).map(() => ({ count: 0, color: null }));
             bar = { white: 0, black: 0 };
-            off = { white: 0, black: 0 }; // ✅ ENSURE OFF IS ZERO
+            off = { white: 0, black: 0 };
             
-            // WHITE Setup (Standard)
             board[23] = { count: 2, color: 'white' };
             board[12] = { count: 5, color: 'white' };
             board[7]  = { count: 3, color: 'white' };
             board[5]  = { count: 5, color: 'white' };
             
-            // BLACK Setup (Standard)
             board[0]  = { count: 2, color: 'black' };
             board[11] = { count: 5, color: 'black' };
             board[16] = { count: 3, color: 'black' };
@@ -577,7 +578,6 @@
                 dice1El.classList.remove('rolling');
                 dice2El.classList.remove('rolling');
                 
-                // ✅ TRUE RANDOM DICE
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 const d2 = Math.floor(Math.random() * 6) + 1;
                 dice = [d1, d2];
@@ -595,7 +595,6 @@
 
         function updateDiceUI() {
             const icons = ['one', 'two', 'three', 'four', 'five', 'six'];
-            // ✅ SAFE INDEX ACCESS FOR DICE DISPLAY
             const d1 = (dice[0] && dice[0] >= 1 && dice[0] <= 6) ? dice[0] - 1 : 0;
             const d2 = (dice[1] && dice[1] >= 1 && dice[1] <= 6) ? dice[1] - 1 : 0;
             
@@ -614,7 +613,6 @@
         function handlePointClick(index) {
             if(!gameActive || currentPlayer !== 'white' || isProcessing || dice.length === 0) return;
 
-            // Handle bearing off by clicking the same piece again
             if(validMoves.includes('off') && index === selectedPoint) {
                 saveState();
                 executeMove(selectedPoint, 'off');
@@ -694,7 +692,6 @@
                 }
             }
             
-            // ✅ BEAR OFF LOGIC
             if(canBearOff(player)) {
                 uniqueDice.forEach(die => {
                     if(fromIndex === -1) return; 
@@ -771,7 +768,6 @@
                 if(board[from].count === 0) board[from].color = null;
                 off[player]++;
                 
-                // ✅ CHECK WIN & CALCULATE POINTS (GAMMON/MARS)
                 if(off[player] === 15) {
                     endGame(player);
                     return;
@@ -857,7 +853,6 @@
             else setTimeout(() => cpuTurn(), 800);
         }
 
-        // ✅ UPDATED END GAME LOGIC WITH GAMMON/MARS SUPPORT
         function endGame(winner) {
             gameActive = false;
             isProcessing = false;
@@ -902,7 +897,6 @@
             overlay.classList.add('active');
         }
 
-        // ✅ NEW GAME FUNCTION - TRUE RESET
         function resetGame() {
             gameActive = true; 
             currentPlayer = 'white'; 
@@ -915,26 +909,21 @@
             rollBtn.disabled = false;
             overlay.classList.remove('active');
             
-            // ✅ RE-INITIALIZE BOARD AND RESET OFF COUNTERS
             initBoard();
             
-            // ✅ RESET DICE VISUALS TO NEUTRAL
             dice1El.innerHTML = '<i class="fas fa-dice-one"></i>';
             dice2El.innerHTML = '<i class="fas fa-dice-two"></i>';
             dice1El.classList.remove('used', 'rolling');
             dice2El.classList.remove('used', 'rolling');
         }
 
-        // Event Listeners
         rollBtn.addEventListener('click', rollDiceAction);
         undoBtn.addEventListener('click', restoreState);
         newGameBtn.addEventListener('click', resetGame);
         playAgainBtn.addEventListener('click', resetGame);
 
-        // ✅ INITIAL SETUP WITHOUT STARTING GAME OR LOADING OLD SCORES
         initBoard();
-        updateStatsUI(); // Shows 0-0 initially
-        // gameActive remains false until user clicks Roll Dice or New Game
+        updateStatsUI();
     </script>
 </body>
 </html>
