@@ -197,6 +197,132 @@
             .game-wrapper { max-width: 95%; }
             .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
         }
+
+        /* ✅ LOCAL LEADERBOARD WIDGET STYLES */
+        .lb-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background: rgba(10, 22, 40, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 9999;
+            font-family: 'Inter', sans-serif;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .lb-widget.hidden {
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .lb-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(212, 175, 55, 0.1);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .lb-header h3 {
+            color: #d4af37;
+            font-size: 0.9rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lb-close {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .lb-close:hover { color: #fff; }
+
+        .lb-input-group {
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .lb-input-group input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #e8eef7;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .lb-input-group input:focus { border-color: #d4af37; }
+
+        .lb-save-btn {
+            background: #d4af37;
+            color: #0a1628;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lb-save-btn:hover { background: #f4d06f; }
+
+        .lb-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .lb-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            border-left: 3px solid transparent;
+            transition: background 0.2s;
+        }
+
+        .lb-item:hover { background: rgba(255,255,255,0.02); }
+        
+        .lb-item.rank-1 { border-left-color: #ffd700; background: rgba(255, 215, 0, 0.05); }
+        .lb-item.rank-2 { border-left-color: #c0c0c0; }
+        .lb-item.rank-3 { border-left-color: #cd7f32; }
+
+        .lb-rank { width: 24px; font-weight: 700; color: #d4af37; }
+        .lb-name { flex: 1; color: #e8eef7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 8px; }
+        .lb-score { font-weight: 700; color: #f4d06f; }
+        .lb-date { font-size: 0.65rem; color: #6b7280; margin-left: 8px; }
+
+        .lb-empty {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.8rem;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Scrollbar styling for leaderboard */
+        .lb-list::-webkit-scrollbar { width: 4px; }
+        .lb-list::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 4px; }
+
+        @media (max-width: 768px) {
+            .lb-widget { width: 280px; bottom: 15px; right: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -257,7 +383,24 @@
         </div>
     </div>
 
-    <!-- ✅ JAVASCRIPT LOGIC -->
+    <!-- ✅ LOCAL LEADERBOARD WIDGET -->
+    <div id="leaderboard-widget" class="lb-widget">
+        <div class="lb-header">
+            <h3><i class="fas fa-trophy"></i> Top Records</h3>
+            <button id="lb-close-btn" class="lb-close"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="lb-input-group">
+            <input type="text" id="player-name" placeholder="Enter Your Nickname" maxlength="12">
+            <button id="save-score-btn" class="lb-save-btn">Save Record</button>
+        </div>
+
+        <div class="lb-list" id="lb-list">
+            <div class="lb-empty">No records yet. Be the first!</div>
+        </div>
+    </div>
+
+    <!-- ✅ JAVASCRIPT LOGIC + LEADERBOARD -->
     <script>
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
@@ -418,6 +561,12 @@
                 bestScoreEl.innerText = bestScore;
             }
             finalScoreEl.innerText = score;
+            
+            // ✅ SEND SCORE TO LEADERBOARD BEFORE SHOWING OVERLAY
+            if(typeof window.updateLeaderboardScore === 'function') {
+                window.updateLeaderboardScore(score);
+            }
+            
             overlay.classList.add('active');
         }
 
@@ -435,6 +584,105 @@
 
         // Initial Draw
         draw();
+
+        // ✅ LOCAL LEADERBOARD LOGIC (ISOLATED)
+        (function() {
+            const GAME_ID = 'gold-snake';
+            const MAX_RECORDS = 10;
+            
+            const widget = document.getElementById('leaderboard-widget');
+            const closeBtn = document.getElementById('lb-close-btn');
+            const saveBtn = document.getElementById('save-score-btn');
+            const nameInput = document.getElementById('player-name');
+            const listContainer = document.getElementById('lb-list');
+
+            let currentScore = 0;
+            let isWidgetOpen = true;
+
+            function getRecords() {
+                try { return JSON.parse(localStorage.getItem(`lb_${GAME_ID}`)) || []; } 
+                catch(e) { return []; }
+            }
+
+            function addRecord(name, score) {
+                if (!name.trim()) { alert('Please enter a nickname!'); return false; }
+                
+                const records = getRecords();
+                records.push({
+                    name: name.trim().substring(0, 12),
+                    score: score,
+                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                });
+
+                records.sort((a, b) => b.score - a.score);
+                const trimmed = records.slice(0, MAX_RECORDS);
+                
+                localStorage.setItem(`lb_${GAME_ID}`, JSON.stringify(trimmed));
+                renderList();
+                return true;
+            }
+
+            function renderList() {
+                const records = getRecords();
+                listContainer.innerHTML = '';
+
+                if (records.length === 0) {
+                    listContainer.innerHTML = '<div class="lb-empty">No records yet. Be the first!</div>';
+                    return;
+                }
+
+                records.forEach((rec, index) => {
+                    const rank = index + 1;
+                    const item = document.createElement('div');
+                    item.className = `lb-item rank-${rank}`;
+                    item.innerHTML = `
+                        <span class="lb-rank">#${rank}</span>
+                        <span class="lb-name">${escapeHtml(rec.name)}</span>
+                        <span class="lb-score">${rec.score}</span>
+                        <span class="lb-date">${rec.date}</span>
+                    `;
+                    listContainer.appendChild(item);
+                });
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            closeBtn.addEventListener('click', () => {
+                widget.classList.add('hidden');
+                isWidgetOpen = false;
+            });
+
+            saveBtn.addEventListener('click', () => {
+                if (currentScore > 0) {
+                    if (addRecord(nameInput.value, currentScore)) {
+                        nameInput.value = '';
+                        saveBtn.textContent = 'Saved!';
+                        setTimeout(() => saveBtn.textContent = 'Save Record', 1500);
+                    }
+                } else {
+                    alert('Play the game first to get a score!');
+                }
+            });
+
+            renderList();
+
+            // Public API for game logic
+            window.updateLeaderboardScore = function(score) {
+                currentScore = score;
+                if (!isWidgetOpen) {
+                    widget.classList.remove('hidden');
+                    isWidgetOpen = true;
+                }
+                const lastRecord = getRecords()[0];
+                if (lastRecord && !nameInput.value) {
+                    nameInput.value = lastRecord.name;
+                }
+            };
+        })();
     </script>
 </body>
 </html>
