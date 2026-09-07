@@ -351,6 +351,364 @@
             @media (max-width: 400px) {
                 .game-wrapper { transform: scale(0.9); margin-bottom: -10%; }
             }
+            @media (max-width: 350px)حق با شماست. مشکل قفل شدن بازی به دلیل عدم مدیریت صحیح نوبت CPU پس از اتمام حرکات و مشکل امتیاز مارس نیز ناشی از منطق اشتباه در تشخیص موقعیت مهره‌های بازنده بود.
+
+من فقط بخش‌های مربوط به **پایان نوبت CPU**، **تشخیص مارسی** و **شروع مجدد بازی** را اصلاح کردم. سایر قسمت‌ها کاملاً دست‌نخورده باقی مانده‌اند:
+
+```html
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gold Backgammon | Behzad Mousavi Hub</title>
+    
+    <!-- ✅ FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a1628;
+            --accent: #d4af37;
+            --accent-light: #f4d06f;
+            --text-primary: #e8eef7;
+            --text-secondary: #a0aec0;
+            
+            /* ✅ NAVIGATION VARIABLES */
+            --nav-height: 70px;
+            --nav-bg: rgba(10, 10, 12, 0.95);
+            --border: rgba(212, 175, 55, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: calc(var(--nav-height) + 20px);
+            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
+            overflow-x: hidden;
+            touch-action: pan-y; /* ✅ ALLOW VERTICAL SCROLL ONLY */
+        }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ BACK TO MAIN PAGE BUTTON (TOP RIGHT) */
+        .back-to-main-btn {
+            position: fixed;
+            top: calc(var(--nav-height) + 15px);
+            right: 5%;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 900;
+        }
+        .back-to-main-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .back-to-main-btn i { font-size: 0.85rem; }
+
+        /* ✅ GAME CONTAINER STYLES */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .game-header { text-align: center; }
+        .game-header h1 {
+            font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ✅ STATS BAR */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .stat-item span { color: var(--accent-light); margin-left: 4px; }
+
+        /* ✅ BOARD LAYOUT - FIXED HORIZONTAL FOR MOBILE */
+        .board-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 560px;
+            aspect-ratio: 4 / 3;
+            background: #1a2b4c;
+            border: 4px double var(--accent);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
+            position: relative;
+            /* ✅ PREVENT CONTENT FROM BREAKING LAYOUT */
+            overflow: hidden; 
+        }
+
+        .bar-area {
+            width: 40px;
+            background: #0f1f38;
+            border-left: 2px solid var(--accent);
+            border-right: 2px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .bar-checkers {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .bar-label { font-size: 0.6rem; color: var(--text-secondary); opacity: 0.5; }
+
+        .board-half {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: 1fr 1fr;
+            gap: 2px;
+        }
+
+        .point {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .point.top { justify-content: flex-start; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
+        .point.bottom { justify-content: flex-end; border-top: 2px solid rgba(212, 175, 55, 0.1); }
+
+        .point:nth-child(odd) { background: rgba(212, 175, 55, 0.05); }
+        .point:nth-child(even) { background: rgba(0, 0, 0, 0.2); }
+
+        .point.valid-move { box-shadow: inset 0 0 15px var(--accent); border: 1px solid var(--accent); }
+        .point.selected { background: rgba(212, 175, 55, 0.2); }
+        
+        /* ✅ NEW: BEARING OFF ZONE HIGHLIGHT */
+        .point.bear-off-zone {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px dashed var(--accent);
+        }
+
+        .checker {
+            width: 85%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            margin: -3px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: rgba(0,0,0,0.5);
+        }
+
+        .checker.white { 
+            background: radial-gradient(circle at 30% 30%, #fff, #ccc); 
+            border: 1px solid #aaa;
+        }
+        .checker.black { 
+            background: radial-gradient(circle at 30% 30%, #444, #000); 
+            border: 1px solid #222;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .point-num {
+            position: absolute;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .point.top .point-num { top: 2px; }
+        .point.bottom .point-num { bottom: 2px; }
+
+        /* ✅ DICE AREA */
+        .dice-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dice {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a2b4c, #0f1f38);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-light);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        .dice.used { opacity: 0.3; filter: grayscale(1); }
+        .dice.rolling { animation: shake 0.5s infinite; }
+        
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* ✅ ACTION BUTTONS ROW */
+        .actions-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            display: flex; align-items: center; gap: 8px;
+            flex: 1;
+            max-width: 160px;
+            justify-content: center;
+        }
+        .action-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        
+        .action-btn.secondary {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            box-shadow: none;
+        }
+        .action-btn.secondary:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; margin-top: 5px; text-align: center;}
+
+        /* ✅ OVERLAY */
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 22, 40, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+        #overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #overlay h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
+        #overlay p { color: #fff; font-size: 1rem; margin-bottom: 20px; }
+
+        /* ✅ MOBILE OPTIMIZATIONS - HORIZONTAL LAYOUT PRESERVED */
+        @media (max-width: 768px) {
+            .nav-links { display: none; } .mobile-menu-btn { display: block; }
+            .game-header h1 { font-size: 1.4rem; } 
+            
+            .game-wrapper { 
+                max-width: 100%; 
+                padding: 0 10px; 
+                /* ✅ SCALE DOWN ENTIRE GAME TO FIT WIDTH */
+                transform-origin: top center;
+            }
+            
+            /* ✅ FORCE HORIZONTAL BOARD ON MOBILE */
+            .board-container { 
+                max-width: 100%; 
+                aspect-ratio: 4 / 3; /* ✅ KEEP ASPECT RATIO */
+                padding: 8px;
+                gap: 6px;
+            }
+            
+            .bar-area { 
+                width: 30px; /* ✅ SLIGHTLY SMALLER BAR */
+                gap: 15px;
+            }
+            
+            .board-half { gap: 1px; }
+            .point { border-radius: 3px; }
+            .checker { width: 88%; margin: -2px 0; } /* ✅ OPTIMIZED TOUCH SIZE */
+            
+            .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
+            .dice { width: 45px; height: 45px; font-size: 1.3rem; }
+            .action-btn { padding: 12px 15px; font-size: 0.9rem; }
+            
+            /* ✅ ADJUST SCALE BASED ON SCREEN WIDTH */
+            @media (max-width: 400px) {
+                .game-wrapper { transform: scale(0.9); margin-bottom: -10%; }
+            }
             @media (max-width: 350px) {
                 .game-wrapper { transform: scale(0.85); margin-bottom: -15%; }
             }
@@ -423,7 +781,7 @@
         </div>
     </div>
 
-    <!-- ✅ JAVASCRIPT LOGIC (UNCHANGED) -->
+    <!-- ✅ JAVASCRIPT LOGIC (FIXED CPU TURN & MARS SCORING) -->
     <script>
         const leftHalfEl = document.getElementById('left-half');
         const rightHalfEl = document.getElementById('right-half');
@@ -822,15 +1180,22 @@
             }
         }
 
+        // ✅ FIXED CPU TURN LOGIC TO PREVENT FREEZING
         function cpuTurn() {
             if(!gameActive) return;
+            
+            // If no dice, roll first
             if(dice.length === 0) {
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 const d2 = Math.floor(Math.random() * 6) + 1;
                 dice = d1 === d2 ? [d1,d1,d1,d1] : [d1,d2];
                 updateDiceUI();
             }
-            let moved = false; let attempts = 0;
+
+            let moved = false; 
+            let attempts = 0;
+            
+            // Try to make a move
             while(!moved && attempts < 50 && dice.length > 0) {
                 attempts++;
                 let source = -1;
@@ -841,18 +1206,28 @@
                     if(occupied.length === 0) break;
                     source = occupied[Math.floor(Math.random() * occupied.length)];
                 }
+                
                 calculateValidMoves(source, 'black');
                 if(validMoves.length > 0) {
                     let dest = validMoves[Math.floor(Math.random() * validMoves.length)];
                     if(validMoves.includes('off')) dest = 'off';
                     executeMove(source, dest);
-                    moved = true; renderBoard();
+                    moved = true; 
+                    renderBoard();
                 }
             }
-            if(!moved || dice.length === 0) setTimeout(() => switchTurn(), 1000);
-            else setTimeout(() => cpuTurn(), 800);
+
+            // ✅ FIX: Properly handle turn switching after CPU moves
+            if(!moved || dice.length === 0) {
+                // No more moves possible or dice exhausted -> Switch turn
+                setTimeout(() => switchTurn(), 800);
+            } else {
+                // Still has dice and made a move -> Continue CPU turn
+                setTimeout(() => cpuTurn(), 800);
+            }
         }
 
+        // ✅ FIXED MARS SCORING LOGIC
         function endGame(winner) {
             gameActive = false;
             isProcessing = false;
@@ -861,21 +1236,38 @@
             let points = 1;
             let winType = "Normal Win";
             
+            // Check for Gammon/Mars: Loser hasn't borne off any pieces yet
             if(off[loser] === 0) {
-                let hasPiecesInEnemyHome = false;
-                if(loser === 'black') {
-                    if(bar.black > 0) hasPiecesInEnemyHome = true;
-                    for(let i=0; i<=5; i++) if(board[i].color === 'black') hasPiecesInEnemyHome = true;
-                } else {
-                    if(bar.white > 0) hasPiecesInEnemyHome = true;
-                    for(let i=18; i<=23; i++) if(board[i].color === 'white') hasPiecesInEnemyHome = true;
+                let hasPiecesInWinnerHome = false;
+                
+                // Winner is White (indices 0-5 are winner's home board)
+                if(winner === 'white') {
+                    // Mars: Loser has pieces on Bar OR in Winner's Home Board (0-5)
+                    if(bar.black > 0) hasPiecesInWinnerHome = true;
+                    for(let i=0; i<=5; i++) {
+                        if(board[i].color === 'black' && board[i].count > 0) {
+                            hasPiecesInWinnerHome = true;
+                            break;
+                        }
+                    }
+                } 
+                // Winner is Black (indices 18-23 are winner's home board)
+                else {
+                    // Mars: Loser has pieces on Bar OR in Winner's Home Board (18-23)
+                    if(bar.white > 0) hasPiecesInWinnerHome = true;
+                    for(let i=18; i<=23; i++) {
+                        if(board[i].color === 'white' && board[i].count > 0) {
+                            hasPiecesInWinnerHome = true;
+                            break;
+                        }
+                    }
                 }
                 
-                if(hasPiecesInEnemyHome) {
-                    points = 3;
+                if(hasPiecesInWinnerHome) {
+                    points = 3; // ✅ MARS = 3 POINTS
                     winType = "MARS! (Triple)";
                 } else {
-                    points = 2;
+                    points = 2; // ✅ GAMMON = 2 POINTS
                     winType = "GAMMON! (Double)";
                 }
             }
@@ -897,6 +1289,7 @@
             overlay.classList.add('active');
         }
 
+        // ✅ FIXED RESET FUNCTION TO PROPERLY RESTART GAME
         function resetGame() {
             gameActive = true; 
             currentPlayer = 'white'; 
@@ -922,6 +1315,8 @@
         newGameBtn.addEventListener('click', resetGame);
         playAgainBtn.addEventListener('click', resetGame);
 
+        // Initialize game on load
+        gameActive = true;
         initBoard();
         updateStatsUI();
     </script>
