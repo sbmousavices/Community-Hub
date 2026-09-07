@@ -265,7 +265,7 @@
         </div>
     </div>
 
-    <!-- ✅ JAVASCRIPT LOGIC WITH ACTIVE CPU AI -->
+    <!-- ✅ JAVASCRIPT LOGIC WITH REALISTIC PHYSICS -->
     <script>
         const canvas = document.getElementById('pool-canvas');
         const ctx = canvas.getContext('2d');
@@ -286,8 +286,12 @@
         let isCpuThinking = false;
         let aimStart = { x: 0, y: 0 };
         let aimCurrent = { x: 0, y: 0 };
-        let friction = 0.985;
-        let stopThreshold = 0.15;
+        
+        // ✅ IMPROVED PHYSICS CONSTANTS
+        let friction = 0.99; // Lower friction for smoother, longer rolls
+        let wallBounce = 0.7; // Energy retained after hitting wall
+        let stopThreshold = 0.08; // Lower threshold for natural stopping
+        
         let playerTurn = true;
         let playerScore = 0;
         let cpuScore = 0;
@@ -360,20 +364,24 @@
 
                 b.x += b.vx;
                 b.y += b.vy;
+                
+                // Apply friction
                 b.vx *= friction;
                 b.vy *= friction;
 
-                if(Math.abs(b.vx) > stopThreshold || Math.abs(b.vy) > stopThreshold) {
+                // Check if ball is still moving significantly
+                let speed = Math.hypot(b.vx, b.vy);
+                if(speed > stopThreshold) {
                     moving = true;
                 } else {
                     b.vx = 0; b.vy = 0;
                 }
 
-                // Wall Collisions
-                if(b.x - b.radius < 45) { b.x = 45 + b.radius; b.vx *= -0.8; }
-                if(b.x + b.radius > canvas.width - 45) { b.x = canvas.width - 45 - b.radius; b.vx *= -0.8; }
-                if(b.y - b.radius < 45) { b.y = 45 + b.radius; b.vy *= -0.8; }
-                if(b.y + b.radius > canvas.height - 45) { b.y = canvas.height - 45 - b.radius; b.vy *= -0.8; }
+                // Wall Collisions with energy loss
+                if(b.x - b.radius < 45) { b.x = 45 + b.radius; b.vx *= -wallBounce; }
+                if(b.x + b.radius > canvas.width - 45) { b.x = canvas.width - 45 - b.radius; b.vx *= -wallBounce; }
+                if(b.y - b.radius < 45) { b.y = 45 + b.radius; b.vy *= -wallBounce; }
+                if(b.y + b.radius > canvas.height - 45) { b.y = canvas.height - 45 - b.radius; b.vy *= -wallBounce; }
 
                 // Pocket Detection
                 const pockets = [
@@ -391,7 +399,7 @@
                 }
             }
 
-            // Ball to Ball Collisions
+            // ✅ REALISTIC ELASTIC COLLISION BETWEEN BALLS
             for(let i=0; i<balls.length; i++) {
                 for(let j=i+1; j<balls.length; j++) {
                     let b1 = balls[i], b2 = balls[j];
@@ -403,22 +411,43 @@
                     let minDist = b1.radius + b2.radius;
 
                     if(dist < minDist && dist > 0) {
-                        // Resolve overlap
-                        let angle = Math.atan2(dy, dx);
-                        let targetX = b1.x + Math.cos(angle) * minDist;
-                        let targetY = b1.y + Math.sin(angle) * minDist;
-                        let ax = (targetX - b2.x) * 0.5;
-                        let ay = (targetY - b2.y) * 0.5;
+                        // 1. Resolve Overlap (prevent sticking)
+                        let overlap = minDist - dist;
+                        let nx = dx / dist; // Normal vector X
+                        let ny = dy / dist; // Normal vector Y
                         
-                        b1.x -= ax; b1.y -= ay;
-                        b2.x += ax; b2.y += ay;
+                        // Move balls apart proportional to overlap
+                        b1.x -= nx * overlap * 0.5;
+                        b1.y -= ny * overlap * 0.5;
+                        b2.x += nx * overlap * 0.5;
+                        b2.y += ny * overlap * 0.5;
 
-                        // Elastic collision
-                        let v1 = {x: b1.vx, y: b1.vy};
-                        let v2 = {x: b2.vx, y: b2.vy};
+                        // 2. Calculate Elastic Collision Response
+                        // Relative velocity
+                        let dvx = b2.vx - b1.vx;
+                        let dvy = b2.vy - b1.vy;
                         
-                        b1.vx = v2.x; b1.vy = v2.y;
-                        b2.vx = v1.x; b2.vy = v1.y;
+                        // Velocity along normal
+                        let velAlongNormal = dvx * nx + dvy * ny;
+
+                        // Do not resolve if velocities are separating
+                        if(velAlongNormal > 0) continue;
+
+                        // Restitution (bounciness) - 0.9 means 90% energy retained in collision
+                        let e = 0.9; 
+                        
+                        // Impulse scalar (assuming equal mass for all balls)
+                        let jVal = -(1 + e) * velAlongNormal;
+                        jVal /= 2; // Divide by 2 because mass1 + mass2 = 2 (equal masses)
+
+                        // Apply impulse
+                        let impulseX = jVal * nx;
+                        let impulseY = jVal * ny;
+
+                        b1.vx -= impulseX;
+                        b1.vy -= impulseY;
+                        b2.vx += impulseX;
+                        b2.vy += impulseY;
                     }
                 }
             }
