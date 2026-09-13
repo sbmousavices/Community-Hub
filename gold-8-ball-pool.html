@@ -433,6 +433,9 @@
         let cpuScore = 0;
         let animationId;
         let gameOver = false;
+        
+        // ✅ NEW VARIABLE TO TRACK POCKETED BALLS IN CURRENT TURN
+        let pocketedThisTurn = 0;
 
         // Ball Colors for 8-Ball
         const BALL_COLORS = [
@@ -449,6 +452,7 @@
             playerTurn = true;
             gameOver = false;
             isCpuThinking = false;
+            pocketedThisTurn = 0; // Reset counter
             updateUI();
             winScreen.classList.remove('active');
 
@@ -618,15 +622,31 @@
                 if(playerTurn) endGame('YOU WIN!', 'You sank the 8-ball!');
                 else endGame('CPU WINS!', 'CPU sank the 8-ball!');
             } else {
-                if(playerTurn) { playerScore++; updateUI(); }
-                else { cpuScore++; updateUI(); }
+                // ✅ ONLY INCREMENT COUNTER HERE, DON'T UPDATE UI YET
+                pocketedThisTurn++;
             }
         }
 
         function checkTurnEnd() {
             if(!gameOver) {
-                playerTurn = !playerTurn;
-                updateUI();
+                // ✅ UPDATE SCORES BASED ON TOTAL POCKETED IN THIS TURN
+                if(pocketedThisTurn > 0) {
+                    if(playerTurn) { 
+                        playerScore += pocketedThisTurn; 
+                    } else { 
+                        cpuScore += pocketedThisTurn; 
+                    }
+                    updateUI();
+                }
+
+                // ✅ ONLY SWITCH TURN IF NO BALLS WERE POCKETED
+                if(pocketedThisTurn === 0) {
+                    playerTurn = !playerTurn;
+                    updateUI();
+                }
+                
+                // Reset counter for next shot
+                pocketedThisTurn = 0;
             }
         }
 
