@@ -527,7 +527,8 @@
 
                 for(let p of pockets) {
                     let dist = Math.hypot(b.x - p.x, b.y - p.y);
-                    if(dist < 28) {
+                    // ✅ CHANGED: Increased pocket radius from 28 to 36 for easier gameplay
+                    if(dist < 36) {
                         b.active = false;
                         b.vx = 0; b.vy = 0;
                         handlePocketedBall(b);
