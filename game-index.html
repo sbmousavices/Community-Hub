@@ -227,8 +227,7 @@
             color: var(--accent);
             font-size: 1.4rem;
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
             gap: 10px;
         }
 
@@ -275,6 +274,46 @@
             border-top: 1px solid var(--border);
         }
 
+        /* ✅ MUSIC CONTROL BUTTON STYLES */
+        .music-control-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            background: rgba(10, 22, 40, 0.9);
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            color: var(--accent);
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .music-control-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.5);
+        }
+
+        .music-control-btn.playing {
+            animation: pulse-gold 2s infinite;
+            border-color: var(--accent-light);
+        }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .mobile-menu-btn { display: block; }
@@ -287,6 +326,7 @@
             .back-to-hub-btn { font-size: 0.75rem; padding: 6px 16px; margin-bottom: 10px; }
             .seo-content-section { padding: 20px; }
             .seo-content-section ul { grid-template-columns: 1fr; }
+            .music-control-btn { bottom: 20px; right: 20px; width: 45px; height: 45px; font-size: 1rem; }
         }
 
         @media (max-width: 480px) {
@@ -295,6 +335,17 @@
     </style>
 </head>
 <body>
+
+    <!-- ✅ AUDIO ELEMENT FOR BACKGROUND MUSIC -->
+    <!-- لینک موزیک جدید و پایدار -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://raw.githubusercontent.com/sbmousavices/Community-Hub/main/assets/audio/cyberpunk-ambience.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ✅ MUSIC CONTROL BUTTON (Default Icon: Volume Up) -->
+    <button class="music-control-btn playing" id="music-toggle" title="Toggle Music">
+        <i class="fas fa-volume-up"></i>
+    </button>
 
     <!-- ✅ UNIFIED NAVIGATION BAR -->
     <nav>
@@ -579,6 +630,45 @@
                 navLinks.style.borderBottom = '1px solid var(--border)';
             });
         }
+
+        // ✅ MUSIC CONTROL LOGIC
+        const bgMusic = document.getElementById('bg-music');
+        const musicToggle = document.getElementById('music-toggle');
+        let isPlaying = false;
+        let userInteracted = false;
+
+        // Set initial volume
+        bgMusic.volume = 0.4;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                musicToggle.classList.remove('playing');
+            } else {
+                bgMusic.play().then(() => {
+                    musicToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    musicToggle.classList.add('playing');
+                }).catch(error => {
+                    console.log("Playback failed:", error);
+                });
+            }
+            isPlaying = !isPlaying;
+        }
+
+        musicToggle.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            toggleMusic();
+        });
+
+        // Auto-play on first user interaction
+        document.body.addEventListener('click', function startMusicOnFirstClick() {
+            if (!userInteracted && !isPlaying) {
+                toggleMusic();
+                userInteracted = true;
+            }
+            document.body.removeEventListener('click', startMusicOnFirstClick);
+        }, { once: true });
     </script>
 </body>
 </html>
