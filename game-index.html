@@ -38,6 +38,80 @@
             overflow-x: hidden;
         }
 
+        /* ✅ SPLASH SCREEN STYLES (NEW) */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a2c4e 0%, #0a1628 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        #splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .splash-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .splash-title {
+            font-size: 2.5rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .splash-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .enter-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .enter-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* ✅ UNIFIED NAVIGATION BAR STYLES */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
@@ -328,6 +402,7 @@
             .seo-content-section { padding: 20px; }
             .seo-content-section ul { grid-template-columns: 1fr; }
             .music-control-btn { bottom: 20px; right: 20px; width: 45px; height: 45px; font-size: 1rem; }
+            .splash-title { font-size: 1.8rem; }
         }
 
         @media (max-width: 480px) {
@@ -337,8 +412,17 @@
 </head>
 <body>
 
+    <!-- ✅ SPLASH SCREEN OVERLAY -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="Logo" class="splash-logo">
+            <h1 class="splash-title">Gold Game Hub</h1>
+            <p class="splash-subtitle">Premium Gaming Experience</p>
+            <button id="enter-site-btn" class="enter-btn">Enter Game Hub</button>
+        </div>
+    </div>
+
     <!-- ✅ AUDIO ELEMENT FOR BACKGROUND MUSIC -->
-    <!-- لینک دقیق درخواستی شما در اینجا قرار گرفت -->
     <audio id="bg-music" loop preload="auto">
         <source src="https://sbmousavices.github.io/Community-Hub/music-main.mp3" type="audio/mpeg">
     </audio>
@@ -632,13 +716,13 @@
             });
         }
 
-        // ✅ MUSIC CONTROL LOGIC
+        // ✅ MUSIC & SPLASH SCREEN LOGIC
         const bgMusic = document.getElementById('bg-music');
         const musicToggle = document.getElementById('music-toggle');
+        const splashScreen = document.getElementById('splash-screen');
+        const enterBtn = document.getElementById('enter-site-btn');
+        
         let isPlaying = false;
-        let userInteracted = false;
-
-        // Set initial volume
         bgMusic.volume = 0.4;
 
         function toggleMusic() {
@@ -662,14 +746,16 @@
             toggleMusic();
         });
 
-        // Auto-play on first user interaction (Click anywhere on page)
-        document.body.addEventListener('click', function startMusicOnFirstClick() {
-            if (!userInteracted && !isPlaying) {
+        // Handle Enter Button Click
+        enterBtn.addEventListener('click', () => {
+            // 1. Hide Splash Screen
+            splashScreen.classList.add('hidden');
+            
+            // 2. Start Music
+            if (!isPlaying) {
                 toggleMusic();
-                userInteracted = true;
             }
-            document.body.removeEventListener('click', startMusicOnFirstClick);
-        }, { once: true });
+        });
     </script>
 </body>
 </html>
