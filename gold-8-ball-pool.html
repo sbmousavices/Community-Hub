@@ -391,16 +391,8 @@
         </div>
     </div>
 
-          <div class="lb-input-group">
-            <input type="text" id="player-name" placeholder="Enter Your Nickname" maxlength="12">
-            <button id="save-score-btn" class="lb-save-btn">Save Record</button>
-        </div>
-
-        <div class="lb-list" id="lb-list">
-            <div class="lb-empty">No records yet. Be the first!</div>
-        </div>
-    </div>
-
+   
+  
     <!-- ✅ JAVASCRIPT LOGIC WITH REALISTIC PHYSICS + LEADERBOARD -->
     <script>
         const canvas = document.getElementById('pool-canvas');
@@ -606,6 +598,11 @@
             }
         }
 
+        // ✅ NEW FUNCTION: Count remaining colored balls (excluding 8-ball and cue ball)
+        function countRemainingBalls() {
+            return balls.filter(b => b.active && b.number !== 0 && b.number !== 8).length;
+        }
+
         function handlePocketedBall(ball) {
             if(ball.number === 0) {
                 // Cue ball pocketed - foul
@@ -617,10 +614,32 @@
                     }
                 }, 500);
             } else if(ball.number === 8) {
-                // 8-ball pocketed
-                gameOver = true;
-                if(playerTurn) endGame('YOU WIN!', 'You sank the 8-ball!');
-                else endGame('CPU WINS!', 'CPU sank the 8-ball!');
+                // ✅ CHECK IF ALL COLORED BALLS ARE POCKETED
+                const remainingColoredBalls = countRemainingBalls();
+                
+                if (remainingColoredBalls > 0) {
+                    // ❌ FOUL: 8-ball pocketed too early
+                    // Return 8-ball to table
+                    setTimeout(() => {
+                        if(!gameOver) {
+                            ball.active = true;
+                            // Place 8-ball back at center or original position
+                            ball.x = 600 + (2 * 22); // Original position in rack
+                            ball.y = 215;
+                            ball.vx = 0; 
+                            ball.vy = 0;
+                            
+                            // Switch turn as penalty
+                            playerTurn = !playerTurn;
+                            updateUI();
+                        }
+                    }, 500);
+                } else {
+                    // ✅ LEGAL: All colored balls are gone, 8-ball pocketed = WIN
+                    gameOver = true;
+                    if(playerTurn) endGame('YOU WIN!', 'You sank the 8-ball!');
+                    else endGame('CPU WINS!', 'CPU sank the 8-ball!');
+                }
             } else {
                 // ✅ ONLY INCREMENT COUNTER HERE, DON'T UPDATE UI YET
                 pocketedThisTurn++;
