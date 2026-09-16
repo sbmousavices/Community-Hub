@@ -32,11 +32,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* ✅ REDUCED TOP PADDING FOR DESKTOP TO FIT CONTENT */
             padding-top: calc(var(--nav-height) + 15px);
             background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
             overflow-x: hidden;
-            /* Allow vertical scroll only if absolutely necessary, but aim to fit */
             overflow-y: auto; 
         }
 
@@ -59,19 +57,18 @@
         /* ✅ BACK TO MAIN PAGE BUTTON (TOP RIGHT) */
         .back-to-main-btn {
             position: fixed;
-            /* ✅ ADJUSTED POSITION */
             top: calc(var(--nav-height) + 10px);
             right: 5%;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 14px; /* ✅ SMALLER PADDING */
+            padding: 6px 14px;
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid var(--accent);
             border-radius: 50px;
             color: var(--accent);
             text-decoration: none;
-            font-size: 0.75rem; /* ✅ SMALLER FONT */
+            font-size: 0.75rem;
             font-weight: 600;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
@@ -90,28 +87,28 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px; /* ✅ REDUCED GAP BETWEEN ELEMENTS */
+            gap: 10px;
             width: 100%;
             max-width: 800px;
             padding: 0 20px;
             position: relative;
-            margin-bottom: 20px; /* Ensure bottom spacing */
+            margin-bottom: 20px;
         }
 
         .game-header { text-align: center; margin-bottom: 5px; }
         .game-header h1 {
-            font-size: 1.8rem; /* ✅ SLIGHTLY SMALLER TITLE */
+            font-size: 1.8rem;
             color: var(--accent); text-transform: uppercase;
             letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
         .score-board { font-size: 1.1rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 5px; }
         .score-board span { color: var(--accent-light); font-size: 1.3rem; }
 
-        /* ✅ GAME AREA WITH VINTAGE FRAME - HEIGHT REDUCED */
+        /* ✅ GAME AREA WITH VINTAGE FRAME */
         #game-area {
             position: relative;
             width: 800px;
-            height: 280px; /* ✅ REDUCED FROM 320px TO 280px */
+            height: 280px;
             background: linear-gradient(to bottom, #050b14 0%, #0f1f38 100%);
             border: 4px double var(--accent); 
             border-radius: 4px;
@@ -120,22 +117,33 @@
             max-width: 100%;
         }
 
-        /* ✅ SVG RUNNER CHARACTER */
+        /* ✅ UPDATED PLAYER STYLES FOR IMAGE AVATAR - NO BACKGROUND */
         #player {
             position: absolute;
             left: 50px;
-            bottom: 40px; /* ✅ ADJUSTED GROUND LEVEL VISUAL */
-            width: 45px; /* ✅ SLIGHTLY SMALLER CHARACTER */
-            height: 45px;
+            bottom: 40px;
+            width: 60px;
+            height: 60px;
             z-index: 5;
             filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
             transition: transform 0.1s;
         }
 
+        /* ✅ KEY CHANGE: REMOVE BROWN BACKGROUND & MAKE GOLDEN */
+        #player img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* This removes the dark/brown background */
+            mix-blend-mode: screen; 
+            /* This makes the character glow gold to match the theme */
+            filter: brightness(1.3) sepia(1) hue-rotate(350deg) saturate(1.5);
+        }
+
         /* Running Animation (Bobbing effect) */
         @keyframes run-bob {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            50% { transform: translateY(-4px); }
         }
 
         #player.running {
@@ -144,13 +152,13 @@
 
         #player.jumping {
             animation: none !important;
-            transform: rotate(-15deg) scale(1.1);
+            transform: rotate(-10deg) scale(1.1);
         }
 
         /* ✅ OBSTACLES */
         .obstacle {
             position: absolute;
-            bottom: 40px; /* ✅ MATCHES NEW GROUND LEVEL */
+            bottom: 40px;
             background: #02060d;
             border-top: 2px solid var(--accent);
             border-left: 2px solid var(--accent);
@@ -161,7 +169,7 @@
         /* ✅ GROUND LINE */
         #ground-line {
             position: absolute;
-            bottom: 40px; /* ✅ MATCHES NEW GROUND LEVEL */
+            bottom: 40px;
             left: 0;
             width: 100%;
             height: 3px;
@@ -176,12 +184,12 @@
             gap: 10px;
             width: 100%;
             justify-content: center;
-            margin-top: 10px; /* ✅ TIGHTER SPACING */
+            margin-top: 10px;
         }
 
         /* ✅ UNIFIED START BUTTON STYLE */
         .start-btn {
-            padding: 10px 25px; /* ✅ SLIGHTLY MORE COMPACT */
+            padding: 10px 25px;
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
             color: var(--bg-primary); border: none; border-radius: 50px;
             font-size: 1rem; font-weight: 800; cursor: pointer;
@@ -226,8 +234,8 @@
             .nav-links { display: none; } .mobile-menu-btn { display: block; }
             .game-header h1 { font-size: 1.5rem; } 
             .game-wrapper { max-width: 95%; gap: 15px; }
-            #game-area { height: 260px; } /* Mobile height */
-            #player { width: 40px; height: 40px; bottom: 35px; left: 30px; }
+            #game-area { height: 260px; }
+            #player { width: 50px; height: 50px; bottom: 35px; left: 30px; }
             .obstacle { bottom: 35px; }
             #ground-line { bottom: 35px; }
             .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 12px; font-size: 0.7rem; }
@@ -238,7 +246,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 280px; /* ✅ SLIGHTLY SMALLER WIDGET */
+            width: 280px;
             background: rgba(10, 22, 40, 0.95);
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 16px;
@@ -351,7 +359,6 @@
             font-style: italic;
         }
 
-        /* Scrollbar styling for leaderboard */
         .lb-list::-webkit-scrollbar { width: 3px; }
         .lb-list::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 3px; }
 
@@ -396,22 +403,9 @@
         <div id="game-area">
             <div id="ground-line"></div>
             
-            <!-- ✅ CUSTOM SVG RUNNER CHARACTER -->
-            <div id="player">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Head -->
-                    <circle cx="70" cy="25" r="12" fill="#d4af37" stroke="#f4d06f" stroke-width="2"/>
-                    <!-- Body -->
-                    <path d="M65 40 L50 65 L75 60 Z" fill="#d4af37" stroke="#f4d06f" stroke-width="2"/>
-                    <!-- Arms -->
-                    <path d="M65 40 L85 50 L75 60" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M65 40 L45 55 L55 65" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
-                    <!-- Legs -->
-                    <path d="M50 65 L30 90 L45 90" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M75 60 L90 85 L75 85" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
-                    <!-- Glow Effect -->
-                    <circle cx="70" cy="25" r="12" fill="none" stroke="#f4d06f" stroke-width="1" opacity="0.5"/>
-                </svg>
+            <!-- ✅ UPDATED PLAYER AVATAR WITH IMAGE -->
+            <div id="player" class="running">
+                <img src="https://sbmousavices.github.io/Community-Hub/runner.png" alt="Runner Avatar">
             </div>
             
             <div id="game-over-screen">
@@ -428,7 +422,7 @@
         <div class="controls-hint">Press Space or Tap Screen to Jump • Double Jump Available!</div>
     </div>
 
-       <!-- ✅ COMPLETE JAVASCRIPT LOGIC (DOM-BASED) + LEADERBOARD -->
+    <!-- ✅ COMPLETE JAVASCRIPT LOGIC (DOM-BASED) + LEADERBOARD -->
     <script>
         const gameArea = document.getElementById('game-area');
         const player = document.getElementById('player');
@@ -457,17 +451,14 @@
             gravity: 0.7
         };
 
-        // ✅ UPDATED GROUND LEVEL TO MATCH CSS (40px)
         const groundLevel = 40; 
 
-        // ✅ NEW GAME BUTTON EVENT
         newGameBtn.addEventListener('click', () => {
             resetGame();
             startBtn.innerHTML = '<i class="fas fa-play"></i> Start Run';
             startBtn.blur();
         });
 
-        // Start Button Event Listener
         startBtn.addEventListener('click', () => {
             resetGame();
             isGameRunning = true;
@@ -499,7 +490,6 @@
                 playerState.jumpCount++;
                 playerState.grounded = false;
                 
-                // Visual feedback
                 player.classList.add('jumping');
                 setTimeout(() => {
                     if(playerState.grounded) player.classList.remove('jumping');
@@ -511,13 +501,12 @@
             const obs = document.createElement('div');
             obs.className = 'obstacle';
             
-            // Randomize size (slightly adjusted for lower height)
             const height = 30 + Math.random() * 40;
             const width = 25 + Math.random() * 20;
             
             obs.style.width = width + 'px';
             obs.style.height = height + 'px';
-            obs.style.left = '800px'; // Start off-screen right
+            obs.style.left = '800px'; 
             
             gameArea.appendChild(obs);
             
@@ -533,14 +522,11 @@
         function update() {
             frameCount++;
             
-            // Increase speed gradually
             if (frameCount % 500 === 0) gameSpeed += 0.4;
 
-            // Player Physics
             playerState.dy += playerState.gravity;
             playerState.y += playerState.dy;
 
-            // Ground Collision
             if (playerState.y >= 0) { 
                 playerState.y = 0;
                 playerState.dy = 0;
@@ -555,10 +541,8 @@
                 playerState.grounded = false;
             }
 
-            // Apply Y position to DOM element
             player.style.bottom = (groundLevel + Math.abs(playerState.y)) + 'px';
 
-            // Spawn Obstacles
             let minGap = 280 + (gameSpeed * 10);
             let lastObsX = obstacles.length > 0 ? obstacles[obstacles.length - 1].x : -1000;
             
@@ -568,7 +552,6 @@
                  }
             }
 
-            // Update Obstacles & Collision
             const playerRect = player.getBoundingClientRect();
 
             for (let i = 0; i < obstacles.length; i++) {
@@ -576,12 +559,11 @@
                 obs.x -= gameSpeed;
                 obs.element.style.left = obs.x + 'px';
 
-                // Collision Detection using DOM rects
                 const obsRect = obs.element.getBoundingClientRect();
                 
-                // Tighter hitboxes for fairness
-                const pLeft = playerRect.left + 10;
-                const pRight = playerRect.right - 10;
+                // Adjusted hitboxes for image avatar
+                const pLeft = playerRect.left + 15; 
+                const pRight = playerRect.right - 15;
                 const pTop = playerRect.top + 10;
                 const pBottom = playerRect.bottom - 5;
 
@@ -595,14 +577,12 @@
                     return;
                 }
 
-                // Score Update
                 if (!obs.passed && obs.x + obs.width < 50) { 
                     score++;
                     scoreElement.innerText = score;
                     obs.passed = true;
                 }
 
-                // Remove off-screen
                 if (obs.x + obs.width < -50) {
                     obs.element.remove();
                     obstacles.splice(i, 1);
@@ -627,7 +607,6 @@
             gameOverScreen.style.display = 'flex';
             startBtn.innerHTML = '<i class="fas fa-play"></i> Try Again';
 
-            // ✅ SEND SCORE TO LEADERBOARD BEFORE SHOWING OVERLAY
             if(typeof window.updateLeaderboardScore === 'function') {
                 window.updateLeaderboardScore(score);
             }
@@ -639,11 +618,9 @@
             frameCount = 0;
             scoreElement.innerText = score;
             
-            // Clear existing obstacles
             obstacles.forEach(o => o.element.remove());
             obstacles = [];
             
-            // Reset player
             playerState.y = 0;
             playerState.dy = 0;
             playerState.jumpCount = 0;
@@ -654,7 +631,6 @@
             gameOverScreen.style.display = 'none';
         }
 
-        // Initial Setup
         resetGame();
 
         // ✅ LOCAL LEADERBOARD LOGIC (ISOLATED)
@@ -742,7 +718,6 @@
 
             renderList();
 
-            // Public API for game logic
             window.updateLeaderboardScore = function(score) {
                 currentScore = score;
                 if (!isWidgetOpen) {
