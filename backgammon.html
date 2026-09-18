@@ -2,12 +2,10 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gold Backgammon | Behzad Mousavi Hub</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
         :root {
             --bg-primary: #0a1628;
@@ -19,9 +17,7 @@
             --nav-bg: rgba(10, 10, 12, 0.95);
             --border: rgba(212, 175, 55, 0.2);
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
-        
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
@@ -32,120 +28,79 @@
             padding-top: calc(var(--nav-height) + 20px);
             background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
             overflow-x: hidden;
-            touch-action: pan-y;
         }
-
         nav {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
             background: var(--nav-bg); backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border); z-index: 1000;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
+            display: flex; align-items: center; justify-content: center; padding: 0 5%;
         }
-        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
-        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
-        .nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
-        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
-        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
-        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
-        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
-
-        .back-to-main-btn {
-            position: fixed; top: calc(var(--nav-height) + 15px); right: 5%;
-            display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;
-            background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent);
-            border-radius: 50px; color: var(--accent); text-decoration: none;
-            font-size: 0.8rem; font-weight: 600; transition: all 0.3s ease;
-            backdrop-filter: blur(5px); z-index: 900;
-        }
-        .back-to-main-btn:hover {
-            background: var(--accent); color: var(--bg-primary);
-            transform: translateY(-2px); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-        }
-
+        .nav-logo { color: var(--accent); font-weight: 700; font-size: 1.2rem; text-decoration: none; }
         .game-wrapper {
             display: flex; flex-direction: column; align-items: center; gap: 15px;
-            width: 100%; max-width: 600px; padding: 0 20px; position: relative;
+            width: 100%; max-width: 600px; padding: 0 20px;
         }
-
-        .game-header { text-align: center; }
         .game-header h1 {
             font-size: 1.8rem; color: var(--accent); text-transform: uppercase;
-            letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            letter-spacing: 2px; margin-bottom: 5px;
         }
-
         .stats-bar {
             display: flex; justify-content: space-around; width: 100%;
             background: rgba(212, 175, 55, 0.05); border: 1px solid var(--border);
-            border-radius: 50px; padding: 8px 15px; font-size: 0.85rem; font-weight: 600;
+            border-radius: 50px; padding: 10px 15px; font-size: 0.9rem; font-weight: 600;
         }
-        .stat-item span { color: var(--accent-light); margin-left: 4px; }
-
+        .stat-item span { color: var(--accent-light); margin: 0 4px; }
         .board-container {
-            display: flex; gap: 10px; width: 100%; max-width: 560px;
+            display: flex; gap: 8px; width: 100%; max-width: 560px;
             aspect-ratio: 4 / 3; background: #1a2b4c; border: 4px double var(--accent);
             border-radius: 12px; padding: 10px;
             box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(212, 175, 55, 0.15);
-            position: relative; overflow: hidden; 
         }
-
-        .bar-area {
-            width: 40px; background: #0f1f38;
-            border-left: 2px solid var(--accent); border-right: 2px solid var(--accent);
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; gap: 20px; z-index: 10;
-        }
-
-        .bar-checkers {
-            display: flex; flex-direction: column;
-            align-items: center; gap: 2px; min-height: 60px;
-        }
-        
-        .bar-label { font-size: 0.6rem; color: var(--text-secondary); opacity: 0.5; }
-
         .board-half {
             flex: 1; display: grid; grid-template-columns: repeat(6, 1fr);
             grid-template-rows: 1fr 1fr; gap: 2px;
         }
-
+        .bar-area {
+            width: 40px; background: #0f1f38;
+            border-left: 2px solid var(--accent); border-right: 2px solid var(--accent);
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; gap: 10px;
+        }
+        .bar-section {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 2px; min-height: 80px;
+        }
+        .bar-label { font-size: 0.55rem; color: var(--text-secondary); opacity: 0.6; }
         .point {
             position: relative; display: flex; flex-direction: column;
-            align-items: center; cursor: pointer; border-radius: 4px; overflow: hidden;
+            align-items: center; cursor: pointer; border-radius: 4px;
+            overflow: hidden; padding: 2px;
         }
-
-        .point.top { justify-content: flex-start; border-bottom: 2px solid rgba(212, 175, 55, 0.1); }
-        .point.bottom { justify-content: flex-end; border-top: 2px solid rgba(212, 175, 55, 0.1); }
-
-        .point:nth-child(odd) { background: rgba(212, 175, 55, 0.05); }
-        .point:nth-child(even) { background: rgba(0, 0, 0, 0.2); }
-
-        .point.valid-move { box-shadow: inset 0 0 15px var(--accent); border: 1px solid var(--accent); }
-        .point.selected { background: rgba(212, 175, 55, 0.2); }
-        
-        .point.bear-off-zone { background: rgba(212, 175, 55, 0.15); border: 1px dashed var(--accent); }
-
+        .point.top { justify-content: flex-start; }
+        .point.bottom { justify-content: flex-end; }
+        .point:nth-child(odd) { background: rgba(212, 175, 55, 0.08); }
+        .point:nth-child(even) { background: rgba(0, 0, 0, 0.25); }
+        .point.valid-move { box-shadow: inset 0 0 12px var(--accent); border: 1px solid var(--accent); }
+        .point.selected { background: rgba(212, 175, 55, 0.3); }
+        .point.bear-off { background: rgba(46, 204, 113, 0.2); border: 1px dashed #2ecc71; }
         .checker {
-            width: 85%; aspect-ratio: 1; border-radius: 50%; margin: -3px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.6); z-index: 2;
+            width: 88%; aspect-ratio: 1; border-radius: 50%; margin: -2px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; font-weight: bold; color: rgba(0,0,0,0.5);
+            font-size: 0.65rem; font-weight: bold;
         }
-
-        .checker.white { background: radial-gradient(circle at 30% 30%, #fff, #ccc); border: 1px solid #aaa; }
-        .checker.black { background: radial-gradient(circle at 30% 30%, #444, #000); border: 1px solid #222; color: rgba(255,255,255,0.3); }
-
+        .checker.white { background: radial-gradient(circle at 30% 30%, #fff, #ccc); border: 1px solid #aaa; color: rgba(0,0,0,0.4); }
+        .checker.black { background: radial-gradient(circle at 30% 30%, #555, #111); border: 1px solid #222; color: rgba(255,255,255,0.4); }
         .point-num {
-            position: absolute; font-size: 0.6rem; color: var(--text-secondary);
-            opacity: 0.4; pointer-events: none;
+            position: absolute; font-size: 0.55rem; color: var(--text-secondary);
+            opacity: 0.5; pointer-events: none;
         }
         .point.top .point-num { top: 2px; }
         .point.bottom .point-num { bottom: 2px; }
-
         .dice-area {
             display: flex; gap: 15px; margin-top: 10px;
             align-items: center; justify-content: center;
         }
-
         .dice {
             width: 50px; height: 50px; background: linear-gradient(135deg, #1a2b4c, #0f1f38);
             border: 2px solid var(--accent); border-radius: 10px;
@@ -155,720 +110,720 @@
         }
         .dice.used { opacity: 0.3; filter: grayscale(1); }
         .dice.rolling { animation: shake 0.5s infinite; }
-        
         @keyframes shake {
-            0% { transform: rotate(0deg); } 25% { transform: rotate(15deg); }
-            50% { transform: rotate(-15deg); } 75% { transform: rotate(5deg); }
-            100% { transform: rotate(0deg); }
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            75% { transform: rotate(-15deg); }
         }
-
         .actions-row {
             display: flex; gap: 10px; margin-top: 15px;
-            width: 100%; justify-content: center;
+            width: 100%; justify-content: center; flex-wrap: wrap;
         }
-
         .action-btn {
-            padding: 10px 20px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            padding: 10px 20px; background: linear-gradient(135deg, var(--accent), var(--accent-light));
             color: var(--bg-primary); border: none; border-radius: 50px;
-            font-size: 1rem; font-weight: 800; cursor: pointer;
+            font-size: 0.95rem; font-weight: 800; cursor: pointer;
             transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
             display: flex; align-items: center; gap: 8px;
-            flex: 1; max-width: 160px; justify-content: center;
         }
         .action-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-        
         .action-btn.secondary {
-            background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent);
-            color: var(--accent); box-shadow: none;
+            background: rgba(212, 175, 55, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            box-shadow: none;
         }
-        .action-btn.secondary:hover:not(:disabled) {
-            background: rgba(212, 175, 55, 0.2);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        .turn-indicator {
+            font-size: 0.9rem; color: var(--accent); font-weight: 600;
+            padding: 6px 16px; background: rgba(212, 175, 55, 0.1);
+            border-radius: 20px; border: 1px solid var(--border);
         }
-
-        .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; margin-top: 5px; text-align: center;}
-
         #overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(10, 22, 40, 0.95); display: none;
             flex-direction: column; align-items: center; justify-content: center;
-            z-index: 20; border-radius: 12px; backdrop-filter: blur(5px); text-align: center;
+            z-index: 2000; backdrop-filter: blur(5px);
         }
         #overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        #overlay h2 { color: var(--accent); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); }
-        #overlay p { color: #fff; font-size: 1rem; margin-bottom: 20px; }
-
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        #overlay h2 { color: var(--accent); font-size: 2.2rem; margin-bottom: 15px; text-shadow: 0 0 20px var(--accent); }
+        #overlay p { color: #fff; font-size: 1.1rem; margin-bottom: 25px; }
+        .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; text-align: center; margin-top: 5px;}
         @media (max-width: 768px) {
-            .nav-links { display: none; } .mobile-menu-btn { display: block; }
-            .game-header h1 { font-size: 1.4rem; } 
-            .game-wrapper { max-width: 100%; padding: 0 10px; transform-origin: top center; }
-            .board-container { max-width: 100%; aspect-ratio: 4 / 3; padding: 8px; gap: 6px; }
-            .bar-area { width: 30px; gap: 15px; }
-            .board-half { gap: 1px; }
-            .point { border-radius: 3px; }
-            .checker { width: 88%; margin: -2px 0; }
-            .back-to-main-btn { top: calc(var(--nav-height) + 10px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
-            .dice { width: 45px; height: 45px; font-size: 1.3rem; }
-            .action-btn { padding: 12px 15px; font-size: 0.9rem; }
-            @media (max-width: 400px) { .game-wrapper { transform: scale(0.9); margin-bottom: -10%; } }
-            @media (max-width: 350px) { .game-wrapper { transform: scale(0.85); margin-bottom: -15%; } }
+            .game-header h1 { font-size: 1.4rem; }
+            .board-container { padding: 6px; gap: 4px; }
+            .bar-area { width: 30px; }
+            .checker { width: 90%; }
         }
     </style>
 </head>
 <body>
-
-    <nav>
-        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
-            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
-        </a>
-        <ul class="nav-links">
-            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
-            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
-            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
-            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
-            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
-            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
-            <li><a href="hub.html" class="active">Hub</a></li>
-            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
-            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
-        </ul>
-        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
-    </nav>
-
-    <a href="https://sbmousavices.github.io/Community-Hub/game-index.html" class="back-to-main-btn">
-        <i class="fas fa-arrow-left"></i> Back to Main Page
-    </a>
-
+    <nav><a href="#" class="nav-logo"><i class="fas fa-dice"></i> Gold Backgammon</a></nav>
+    
     <div class="game-wrapper">
-        <div class="game-header">
-            <h1><i class="fas fa-dice"></i> Gold Backgammon</h1>
-        </div>
-
+        <div class="game-header"><h1>Gold Backgammon</h1></div>
+        
         <div class="stats-bar">
-            <div class="stat-item">You Points: <span id="player-wins">0</span> / 5</div>
-            <div class="stat-item">CPU Points: <span id="cpu-wins">0</span> / 5</div>
+            <div class="stat-item">You: <span id="playerScore">0</span> / 5</div>
+            <div class="turn-indicator" id="turnIndicator">Your Turn</div>
+            <div class="stat-item">CPU: <span id="cpuScore">0</span> / 5</div>
         </div>
         
         <div class="board-container">
-            <div class="board-half" id="left-half"></div>
+            <div class="board-half" id="leftHalf"></div>
             <div class="bar-area">
-                <div class="bar-checkers" id="bar-white"></div>
-                <div class="bar-checkers" id="bar-black"></div>
+                <div class="bar-section" id="barWhite"></div>
+                <div class="bar-section" id="barBlack"></div>
             </div>
-            <div class="board-half" id="right-half"></div>
-        </div>
-
-        <div class="dice-area">
-            <div class="dice" id="dice1"><i class="fas fa-dice-one"></i></div>
-            <div class="dice" id="dice2"><i class="fas fa-dice-two"></i></div>
-        </div>
-
-        <div class="actions-row">
-            <button id="undoBtn" class="action-btn secondary" disabled><i class="fas fa-rotate-left"></i> Undo</button>
-            <button id="newGameBtn" class="action-btn"><i class="fas fa-redo"></i> New Game</button>
-            <button id="rollBtn" class="action-btn"><i class="fas fa-dice"></i> Roll Dice</button>
+            <div class="board-half" id="rightHalf"></div>
         </div>
         
-        <div class="controls-hint">Roll dice • Tap checker to select • Tap highlighted point to move</div>
-
-        <div id="overlay">
-            <h2 id="result-title">YOU WIN!</h2>
-            <p id="result-msg">Excellent strategy!</p>
-            <button id="playAgainBtn" class="action-btn"><i class="fas fa-play"></i> Play Again</button>
+        <div class="dice-area">
+            <div class="dice" id="dice1">?</div>
+            <div class="dice" id="dice2">?</div>
         </div>
+        
+        <div class="actions-row">
+            <button class="action-btn secondary" id="undoBtn" disabled><i class="fas fa-rotate-left"></i> Undo</button>
+            <button class="action-btn" id="newGameBtn"><i class="fas fa-redo"></i> New Game</button>
+            <button class="action-btn" id="rollBtn"><i class="fas fa-dice"></i> Roll Dice</button>
+        </div>
+        
+        <div class="controls-hint">Roll dice → Tap your checker → Tap highlighted point to move</div>
+    </div>
+    
+    <div id="overlay">
+        <h2 id="resultTitle">YOU WIN!</h2>
+        <p id="resultMsg">Great game!</p>
+        <button class="action-btn" id="playAgainBtn"><i class="fas fa-play"></i> Play Again</button>
     </div>
 
     <script>
-        const leftHalfEl = document.getElementById('left-half');
-        const rightHalfEl = document.getElementById('right-half');
-        const barWhiteEl = document.getElementById('bar-white');
-        const barBlackEl = document.getElementById('bar-black');
-        const dice1El = document.getElementById('dice1');
-        const dice2El = document.getElementById('dice2');
-        const rollBtn = document.getElementById('rollBtn');
-        const undoBtn = document.getElementById('undoBtn');
-        const newGameBtn = document.getElementById('newGameBtn');
-        const overlay = document.getElementById('overlay');
-        const resultTitle = document.getElementById('result-title');
-        const resultMsg = document.getElementById('result-msg');
-        const playAgainBtn = document.getElementById('playAgainBtn');
-        const playerWinsEl = document.getElementById('player-wins');
-        const cpuWinsEl = document.getElementById('cpu-wins');
+    // ============================================================
+    // COMPLETE BACKGAMMON - Clean Implementation
+    // ============================================================
+    
+    const DOM = {
+        leftHalf: document.getElementById('leftHalf'),
+        rightHalf: document.getElementById('rightHalf'),
+        barWhite: document.getElementById('barWhite'),
+        barBlack: document.getElementById('barBlack'),
+        dice1: document.getElementById('dice1'),
+        dice2: document.getElementById('dice2'),
+        rollBtn: document.getElementById('rollBtn'),
+        undoBtn: document.getElementById('undoBtn'),
+        newGameBtn: document.getElementById('newGameBtn'),
+        overlay: document.getElementById('overlay'),
+        resultTitle: document.getElementById('resultTitle'),
+        resultMsg: document.getElementById('resultMsg'),
+        playAgainBtn: document.getElementById('playAgainBtn'),
+        playerScore: document.getElementById('playerScore'),
+        cpuScore: document.getElementById('cpuScore'),
+        turnIndicator: document.getElementById('turnIndicator')
+    };
 
-        // ✅ GAME STATE
-        let board = [];
-        let bar = { white: 0, black: 0 };
-        let off = { white: 0, black: 0 }; 
-        let currentPlayer = 'white';
-        let dice = [];
-        let selectedPoint = null;
-        let validMoves = [];
-        let gameActive = false;
-        let isProcessing = false;
-        let historyStack = [];
-        let stats = JSON.parse(localStorage.getItem('bgStats')) || { player: 0, cpu: 0 };
+    // Game state - single source of truth
+    let state = {
+        board: [],        // 24 points, positive = white, negative = black
+        barWhite: 0,      // white checkers on bar
+        barBlack: 0,      // black checkers on bar
+        offWhite: 0,      // white checkers borne off
+        offBlack: 0,      // black checkers borne off
+        currentPlayer: 'white',
+        dice: [],         // remaining dice to play
+        selectedPoint: null,
+        validMoves: [],
+        gameActive: true,
+        isCpuThinking: false,
+        history: [],
+        playerScore: 0,
+        cpuScore: 0,
+        cpuTimeout: null
+    };
+
+    // Load saved scores
+    try {
+        const saved = JSON.parse(localStorage.getItem('bgScores'));
+        if (saved) {
+            state.playerScore = saved.player || 0;
+            state.cpuScore = saved.cpu || 0;
+        }
+    } catch(e) {}
+
+    // ============================================================
+    // BOARD INITIALIZATION - Standard backgammon setup
+    // ============================================================
+    function initBoard() {
+        // Clear everything
+        state.board = new Array(24).fill(0);
+        state.barWhite = 0;
+        state.barBlack = 0;
+        state.offWhite = 0;
+        state.offBlack = 0;
+        state.currentPlayer = 'white';
+        state.dice = [];
+        state.selectedPoint = null;
+        state.validMoves = [];
+        state.gameActive = true;
+        state.isCpuThinking = false;
+        state.history = [];
         
-        function updateStatsUI() {
-            playerWinsEl.innerText = stats.player;
-            cpuWinsEl.innerText = stats.cpu;
+        // Standard setup: 15 checkers each
+        // White: 2 on 24, 5 on 13, 3 on 8, 5 on 6 (1-indexed)
+        state.board[23] = 2;   // point 24
+        state.board[12] = 5;   // point 13
+        state.board[7]  = 3;   // point 8
+        state.board[5]  = 5;   // point 6
+        
+        // Black: 2 on 1, 5 on 12, 3 on 17, 5 on 19 (1-indexed)
+        state.board[0]  = -2;  // point 1
+        state.board[11] = -5;  // point 12
+        state.board[16] = -3;  // point 17
+        state.board[18] = -5;  // point 19
+        
+        updateUI();
+        render();
+    }
+
+    // ============================================================
+    // RENDER - Always rebuilds from state (no duplicates)
+    // ============================================================
+    function render() {
+        // Clear ALL containers completely
+        DOM.leftHalf.innerHTML = '';
+        DOM.rightHalf.innerHTML = '';
+        DOM.barWhite.innerHTML = '<div class="bar-label">BAR</div>';
+        DOM.barBlack.innerHTML = '<div class="bar-label">BAR</div>';
+        
+        // Render bar checkers
+        for (let i = 0; i < state.barWhite; i++) {
+            DOM.barWhite.appendChild(createChecker('white'));
         }
-
-        function initBoard() {
-            board = Array(24).fill(null).map(() => ({ count: 0, color: null }));
-            bar = { white: 0, black: 0 };
-            off = { white: 0, black: 0 };
-            
-            // White checkers (15 total)
-            board[23] = { count: 2, color: 'white' };
-            board[12] = { count: 5, color: 'white' };
-            board[7]  = { count: 3, color: 'white' };
-            board[5]  = { count: 5, color: 'white' };
-            
-            // Black checkers (15 total)
-            board[0]  = { count: 2, color: 'black' };
-            board[11] = { count: 5, color: 'black' };
-            board[16] = { count: 3, color: 'black' };
-            board[18] = { count: 5, color: 'black' };
-            
-            renderBoard();
+        for (let i = 0; i < state.barBlack; i++) {
+            DOM.barBlack.appendChild(createChecker('black'));
         }
-
-        function renderBoard() {
-            // ✅ COMPLETELY CLEAR ALL CONTAINERS FIRST
-            leftHalfEl.innerHTML = '';
-            rightHalfEl.innerHTML = '';
-            barWhiteEl.innerHTML = '';
-            barBlackEl.innerHTML = '';
-            
-            // Create bar labels
-            const barLabelWhite = document.createElement('div');
-            barLabelWhite.className = 'bar-label';
-            barLabelWhite.innerText = 'BAR';
-            barWhiteEl.appendChild(barLabelWhite);
-            
-            const barLabelBlack = document.createElement('div');
-            barLabelBlack.className = 'bar-label';
-            barLabelBlack.innerText = 'BAR';
-            barBlackEl.appendChild(barLabelBlack);
-            
-            // Add checkers to bar
-            for(let i = 0; i < bar.white; i++) {
-                const c = document.createElement('div');
-                c.className = 'checker white';
-                barWhiteEl.appendChild(c);
-            }
-            for(let i = 0; i < bar.black; i++) {
-                const c = document.createElement('div');
-                c.className = 'checker black';
-                barBlackEl.appendChild(c);
-            }
-
-            // Top row: points 12-1 (left to right)
-            const topRow = [12,11,10,9,8,7, 6,5,4,3,2,1];
-            // Bottom row: points 13-24 (left to right)
-            const bottomRow = [13,14,15,16,17,18, 19,20,21,22,23,24];
-
-            // Render top row
-            topRow.forEach((labelNum, idx) => {
-                const arrIdx = labelNum - 1;
-                const point = document.createElement('div');
-                point.className = 'point top';
-                
-                if(validMoves.includes(arrIdx)) point.classList.add('valid-move');
-                if(selectedPoint === arrIdx) point.classList.add('selected');
-                
-                const num = document.createElement('span');
-                num.className = 'point-num';
-                num.innerText = labelNum;
-                point.appendChild(num);
-
-                const data = board[arrIdx];
-                if(data.count > 0) {
-                    const visibleCount = Math.min(data.count, 5);
-                    for(let j=0; j<visibleCount; j++) {
-                        const c = document.createElement('div');
-                        c.className = `checker ${data.color}`;
-                        if(data.count > 5 && j === visibleCount-1) c.innerText = data.count;
-                        point.appendChild(c);
-                    }
-                }
-
-                point.addEventListener('click', () => handlePointClick(arrIdx));
-                
-                if(idx < 6) leftHalfEl.appendChild(point);
-                else rightHalfEl.appendChild(point);
-            });
-
-            // Render bottom row
-            bottomRow.forEach((labelNum, idx) => {
-                const arrIdx = labelNum - 1;
-                const point = document.createElement('div');
-                point.className = 'point bottom';
-                
-                if(validMoves.includes(arrIdx)) point.classList.add('valid-move');
-                if(selectedPoint === arrIdx) point.classList.add('selected');
-                
-                const num = document.createElement('span');
-                num.className = 'point-num';
-                num.innerText = labelNum;
-                point.appendChild(num);
-
-                const data = board[arrIdx];
-                if(data.count > 0) {
-                    const visibleCount = Math.min(data.count, 5);
-                    for(let j=0; j<visibleCount; j++) {
-                        const c = document.createElement('div');
-                        c.className = `checker ${data.color}`;
-                        if(data.count > 5 && j === visibleCount-1) c.innerText = data.count;
-                        point.appendChild(c);
-                    }
-                }
-
-                point.addEventListener('click', () => handlePointClick(arrIdx));
-                
-                if(idx < 6) leftHalfEl.appendChild(point);
-                else rightHalfEl.appendChild(point);
-            });
-        }
-
-        function handlePointClick(index) {
-            if(!gameActive || currentPlayer !== 'white' || isProcessing || dice.length === 0) return;
-
-            if(validMoves.includes('off') && index === selectedPoint) {
-                saveState();
-                executeMove(selectedPoint, 'off');
-                selectedPoint = null;
-                validMoves = [];
-                renderBoard();
-                if(dice.length === 0 || !hasValidMoves('white')) {
-                    isProcessing = true;
-                    setTimeout(() => switchTurn(), 500);
-                }
-                return;
-            }
-
-            if(validMoves.includes(index)) {
-                saveState();
-                executeMove(selectedPoint, index);
-                selectedPoint = null;
-                validMoves = [];
-                renderBoard();
-                if(dice.length === 0 || !hasValidMoves('white')) {
-                    isProcessing = true;
-                    setTimeout(() => switchTurn(), 500);
-                }
-                return;
-            }
-
-            if(bar.white > 0) return; 
-
-            const point = board[index];
-            if(point.color === 'white' && point.count > 0) {
-                selectedPoint = index;
-                calculateValidMoves(index, 'white');
-                renderBoard();
-            } else {
-                selectedPoint = null;
-                validMoves = [];
-                renderBoard();
-            }
-        }
-
-        barWhiteEl.addEventListener('click', () => {
-            if(!gameActive || currentPlayer !== 'white' || isProcessing || bar.white === 0 || dice.length === 0) return;
-            selectedPoint = -1;
-            calculateValidMoves(-1, 'white');
-            renderBoard();
+        
+        // Top row: points 13-24 (indices 12-23), displayed right-to-left
+        // Bottom row: points 1-12 (indices 0-11), displayed left-to-right
+        const topRow = [23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12];
+        const bottomRow = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        
+        // Top half: left = indices 12-17 (points 13-18), right = indices 18-23 (points 19-24)
+        topRow.forEach((idx, pos) => {
+            const point = createPoint(idx, 'top', idx + 1);
+            if (pos < 6) DOM.leftHalf.appendChild(point);
+            else DOM.rightHalf.appendChild(point);
         });
+        
+        // Bottom half: left = indices 0-5 (points 1-6), right = indices 6-11 (points 7-12)
+        bottomRow.forEach((idx, pos) => {
+            const point = createPoint(idx, 'bottom', idx + 1);
+            if (pos < 6) DOM.leftHalf.appendChild(point);
+            else DOM.rightHalf.appendChild(point);
+        });
+    }
 
-        function canBearOff(player) {
-            if(player === 'white') {
-                if(bar.white > 0) return false;
-                for(let i=6; i<24; i++) if(board[i].color === 'white') return false;
-                return true;
-            } else {
-                if(bar.black > 0) return false;
-                for(let i=0; i<18; i++) if(board[i].color === 'black') return false;
-                return true;
+    function createPoint(idx, position, label) {
+        const point = document.createElement('div');
+        point.className = `point ${position}`;
+        point.dataset.index = idx;
+        
+        if (state.selectedPoint === idx) point.classList.add('selected');
+        if (state.validMoves.includes(idx)) point.classList.add('valid-move');
+        
+        // Bear-off zone highlighting
+        if (state.validMoves.includes('off')) {
+            if (state.currentPlayer === 'white' && idx >= 18) point.classList.add('bear-off');
+            if (state.currentPlayer === 'black' && idx <= 5) point.classList.add('bear-off');
+        }
+        
+        const num = document.createElement('div');
+        num.className = 'point-num';
+        num.textContent = label;
+        point.appendChild(num);
+        
+        const count = state.board[idx];
+        if (count !== 0) {
+            const color = count > 0 ? 'white' : 'black';
+            const absCount = Math.abs(count);
+            const visible = Math.min(absCount, 5);
+            for (let i = 0; i < visible; i++) {
+                const checker = createChecker(color);
+                if (absCount > 5 && i === visible - 1) {
+                    checker.textContent = absCount;
+                }
+                point.appendChild(checker);
             }
         }
+        
+        point.addEventListener('click', () => onPointClick(idx));
+        return point;
+    }
 
-        function calculateValidMoves(fromIndex, player) {
-            validMoves = [];
-            const direction = player === 'white' ? -1 : 1;
-            const uniqueDice = [...new Set(dice)];
+    function createChecker(color) {
+        const c = document.createElement('div');
+        c.className = `checker ${color}`;
+        return c;
+    }
+
+    function updateUI() {
+        DOM.playerScore.textContent = state.playerScore;
+        DOM.cpuScore.textContent = state.cpuScore;
+        DOM.turnIndicator.textContent = state.currentPlayer === 'white' ? 'Your Turn' : 'CPU Thinking...';
+        DOM.turnIndicator.style.color = state.currentPlayer === 'white' ? 'var(--accent)' : 'var(--text-secondary)';
+        DOM.rollBtn.disabled = state.currentPlayer !== 'white' || state.dice.length > 0 || !state.gameActive;
+        DOM.undoBtn.disabled = state.history.length === 0 || state.isCpuThinking;
+        
+        // Dice display
+        if (state.dice.length === 0) {
+            DOM.dice1.textContent = '?';
+            DOM.dice2.textContent = '?';
+            DOM.dice1.classList.add('used');
+            DOM.dice2.classList.add('used');
+        } else {
+            const icons = ['one','two','three','four','five','six'];
+            DOM.dice1.innerHTML = `<i class="fas fa-dice-${icons[state.dice[0]-1]}"></i>`;
+            DOM.dice1.classList.remove('used');
+            if (state.dice.length > 1) {
+                DOM.dice2.innerHTML = `<i class="fas fa-dice-${icons[state.dice[1]-1]}"></i>`;
+                DOM.dice2.classList.remove('used');
+            } else {
+                DOM.dice2.innerHTML = '';
+                DOM.dice2.classList.add('used');
+            }
+        }
+    }
+
+    // ============================================================
+    // GAME LOGIC
+    // ============================================================
+    
+    function rollDice() {
+        if (state.currentPlayer !== 'white' || state.dice.length > 0 || !state.gameActive) return;
+        
+        state.history = [];
+        DOM.undoBtn.disabled = true;
+        
+        DOM.dice1.classList.add('rolling');
+        DOM.dice2.classList.add('rolling');
+        
+        setTimeout(() => {
+            DOM.dice1.classList.remove('rolling');
+            DOM.dice2.classList.remove('rolling');
             
-            uniqueDice.forEach(die => checkMoveValidity(fromIndex, die, player, direction));
+            const d1 = Math.floor(Math.random() * 6) + 1;
+            const d2 = Math.floor(Math.random() * 6) + 1;
+            state.dice = (d1 === d2) ? [d1, d1, d1, d1] : [d1, d2];
+            
+            updateUI();
+            
+            if (!hasAnyMove('white')) {
+                setTimeout(switchTurn, 1500);
+            }
+        }, 600);
+    }
 
-            if(dice.length >= 2) {
-                for(let i=0; i<dice.length; i++) {
-                    for(let j=i+1; j<dice.length; j++) {
-                        const die1 = dice[i]; const die2 = dice[j]; const combinedDie = die1 + die2;
-                        let intermediateIndex = (fromIndex === -1) ? (player === 'white' ? 24 - die1 : die1 - 1) : fromIndex + (die1 * direction);
-                        if(isValidPoint(intermediateIndex, player)) checkMoveValidity(fromIndex, combinedDie, player, direction, true);
-                        
-                        let intermediateIndex2 = (fromIndex === -1) ? (player === 'white' ? 24 - die2 : die2 - 1) : fromIndex + (die2 * direction);
-                        if(isValidPoint(intermediateIndex2, player)) checkMoveValidity(fromIndex, combinedDie, player, direction, true);
+    function onPointClick(idx) {
+        if (!state.gameActive || state.currentPlayer !== 'white' || state.isCpuThinking) return;
+        if (state.dice.length === 0) return;
+        
+        // If clicking on a valid move destination
+        if (state.validMoves.includes(idx) && state.selectedPoint !== null) {
+            saveHistory();
+            executeMove(state.selectedPoint, idx);
+            state.selectedPoint = null;
+            state.validMoves = [];
+            render();
+            updateUI();
+            checkTurnEnd();
+            return;
+        }
+        
+        // If clicking bear-off
+        if (state.validMoves.includes('off') && state.selectedPoint !== null) {
+            saveHistory();
+            executeMove(state.selectedPoint, 'off');
+            state.selectedPoint = null;
+            state.validMoves = [];
+            render();
+            updateUI();
+            checkTurnEnd();
+            return;
+        }
+        
+        // If clicking on bar (when white has checkers on bar)
+        if (idx === -1 && state.barWhite > 0) {
+            state.selectedPoint = -1;
+            state.validMoves = getValidMoves(-1, 'white');
+            render();
+            return;
+        }
+        
+        // If clicking on own checker
+        if (state.board[idx] > 0) {
+            if (state.barWhite > 0) return; // Must move from bar first
+            state.selectedPoint = idx;
+            state.validMoves = getValidMoves(idx, 'white');
+            render();
+            return;
+        }
+        
+        // Deselect
+        state.selectedPoint = null;
+        state.validMoves = [];
+        render();
+    }
+
+    function getValidMoves(fromIdx, player) {
+        const moves = [];
+        const direction = player === 'white' ? -1 : 1;
+        const uniqueDice = [...new Set(state.dice)];
+        
+        // If on bar, entry point is different
+        const startIdx = fromIdx === -1 ? (player === 'white' ? 24 : -1) : fromIdx;
+        
+        uniqueDice.forEach(die => {
+            const target = startIdx + (die * direction);
+            if (player === 'white') {
+                if (target >= 0 && target <= 23) {
+                    if (canLand(target, player)) moves.push(target);
+                } else if (target < 0 && canBearOff(player)) {
+                    // Check if exact or if no checkers behind
+                    if (die === (fromIdx + 1)) {
+                        moves.push('off');
+                    } else if (die > (fromIdx + 1) && noCheckersBehind(fromIdx, player)) {
+                        moves.push('off');
+                    }
+                }
+            } else {
+                if (target >= 0 && target <= 23) {
+                    if (canLand(target, player)) moves.push(target);
+                } else if (target > 23 && canBearOff(player)) {
+                    if (die === (24 - fromIdx)) {
+                        moves.push('off');
+                    } else if (die > (24 - fromIdx) && noCheckersBehind(fromIdx, player)) {
+                        moves.push('off');
+                    }
+                }
+            }
+        });
+        
+        return moves;
+    }
+
+    function canLand(idx, player) {
+        const count = state.board[idx];
+        if (count === 0) return true;
+        if (player === 'white' && count > 0) return true;
+        if (player === 'black' && count < 0) return true;
+        // Hit blot (single opponent checker)
+        if (player === 'white' && count === -1) return true;
+        if (player === 'black' && count === 1) return true;
+        return false;
+    }
+
+    function canBearOff(player) {
+        if (player === 'white') {
+            if (state.barWhite > 0) return false;
+            for (let i = 6; i < 24; i++) if (state.board[i] > 0) return false;
+            return true;
+        } else {
+            if (state.barBlack > 0) return false;
+            for (let i = 0; i < 18; i++) if (state.board[i] < 0) return false;
+            return true;
+        }
+    }
+
+    function noCheckersBehind(fromIdx, player) {
+        if (player === 'white') {
+            for (let i = fromIdx + 1; i <= 5; i++) if (state.board[i] > 0) return false;
+            return true;
+        } else {
+            for (let i = 18; i < fromIdx; i++) if (state.board[i] < 0) return false;
+            return true;
+        }
+    }
+
+    function hasAnyMove(player) {
+        if (player === 'white' && state.barWhite > 0) {
+            return getValidMoves(-1, 'white').length > 0;
+        }
+        if (player === 'black' && state.barBlack > 0) {
+            return getValidMoves(-1, 'black').length > 0;
+        }
+        for (let i = 0; i < 24; i++) {
+            if ((player === 'white' && state.board[i] > 0) || (player === 'black' && state.board[i] < 0)) {
+                if (getValidMoves(i, player).length > 0) return true;
+            }
+        }
+        return false;
+    }
+
+    function executeMove(from, to) {
+        const player = state.currentPlayer;
+        const dieUsed = calculateDieUsed(from, to, player);
+        
+        // Remove die
+        const dieIdx = state.dice.indexOf(dieUsed);
+        if (dieIdx !== -1) state.dice.splice(dieIdx, 1);
+        else {
+            // Use largest available die
+            state.dice.sort((a,b) => b-a);
+            state.dice.shift();
+        }
+        
+        if (to === 'off') {
+            // Bear off
+            if (from === -1) {
+                if (player === 'white') state.barWhite--;
+                else state.barBlack--;
+            } else {
+                if (player === 'white') state.board[from]--;
+                else state.board[from]++;
+            }
+            if (player === 'white') state.offWhite++;
+            else state.offBlack++;
+        } else {
+            // Remove from source
+            if (from === -1) {
+                if (player === 'white') state.barWhite--;
+                else state.barBlack--;
+            } else {
+                if (player === 'white') state.board[from]--;
+                else state.board[from]++;
+            }
+            
+            // Land on destination
+            const target = state.board[to];
+            if (player === 'white') {
+                if (target === -1) {
+                    // Hit!
+                    state.barBlack++;
+                    state.board[to] = 1;
+                } else {
+                    state.board[to]++;
+                }
+            } else {
+                if (target === 1) {
+                    state.barWhite++;
+                    state.board[to] = -1;
+                } else {
+                    state.board[to]--;
+                }
+            }
+        }
+    }
+
+    function calculateDieUsed(from, to, player) {
+        if (to === 'off') {
+            const dist = player === 'white' ? (from + 1) : (24 - from);
+            if (state.dice.includes(dist)) return dist;
+            // Use largest die that's >= distance
+            const candidates = state.dice.filter(d => d >= dist).sort((a,b) => a-b);
+            return candidates.length > 0 ? candidates[0] : state.dice[0];
+        }
+        return Math.abs(to - from);
+    }
+
+    function checkTurnEnd() {
+        if (state.offWhite === 15) { endGame('white'); return; }
+        if (state.offBlack === 15) { endGame('black'); return; }
+        
+        if (state.dice.length === 0 || !hasAnyMove(state.currentPlayer)) {
+            setTimeout(switchTurn, 800);
+        }
+    }
+
+    function switchTurn() {
+        state.currentPlayer = state.currentPlayer === 'white' ? 'black' : 'white';
+        state.dice = [];
+        state.selectedPoint = null;
+        state.validMoves = [];
+        state.history = [];
+        updateUI();
+        render();
+        
+        if (state.currentPlayer === 'black' && state.gameActive) {
+            state.isCpuThinking = true;
+            updateUI();
+            state.cpuTimeout = setTimeout(cpuPlay, 1000);
+        }
+    }
+
+    function cpuPlay() {
+        if (!state.gameActive) return;
+        
+        // Roll if needed
+        if (state.dice.length === 0) {
+            const d1 = Math.floor(Math.random() * 6) + 1;
+            const d2 = Math.floor(Math.random() * 6) + 1;
+            state.dice = (d1 === d2) ? [d1, d1, d1, d1] : [d1, d2];
+            updateUI();
+        }
+        
+        // Try to make a move
+        let moved = false;
+        let attempts = 0;
+        
+        while (!moved && attempts < 100 && state.dice.length > 0) {
+            attempts++;
+            
+            // Get all possible moves
+            const allMoves = [];
+            if (state.barBlack > 0) {
+                const moves = getValidMoves(-1, 'black');
+                moves.forEach(m => allMoves.push({from: -1, to: m}));
+            } else {
+                for (let i = 0; i < 24; i++) {
+                    if (state.board[i] < 0) {
+                        const moves = getValidMoves(i, 'black');
+                        moves.forEach(m => allMoves.push({from: i, to: m}));
                     }
                 }
             }
             
-            if(canBearOff(player)) {
-                uniqueDice.forEach(die => {
-                    if(fromIndex === -1) return; 
-                    let targetIndex = fromIndex + (die * direction);
-                    let isOff = (player === 'white' && targetIndex < 0) || (player === 'black' && targetIndex > 23);
-                    
-                    if(isOff) {
-                        const distToEdge = player === 'white' ? (fromIndex + 1) : (24 - fromIndex);
-                        if(die === distToEdge) {
-                            validMoves.push('off');
-                        } else if(die > distToEdge) {
-                            let hasCheckersBehind = false;
-                            if(player === 'white') {
-                                for(let k=fromIndex+1; k<=5; k++) if(board[k].color === 'white') hasCheckersBehind = true;
-                            } else {
-                                for(let k=18; k<fromIndex; k++) if(board[k].color === 'black') hasCheckersBehind = true;
-                            }
-                            if(!hasCheckersBehind) validMoves.push('off');
-                        }
-                    }
-                });
-            }
-        }
-
-        function isValidPoint(index, player) {
-            if(index < 0 || index > 23) return false;
-            const target = board[index];
-            return target.count === 0 || target.color === player || (target.color !== player && target.count === 1);
-        }
-
-        function checkMoveValidity(fromIndex, distance, player, direction, isCombined=false) {
-            let targetIndex = (fromIndex === -1) ? (player === 'white' ? 24 - distance : distance - 1) : fromIndex + (distance * direction);
-            if(targetIndex >= 0 && targetIndex <= 23) {
-                const target = board[targetIndex];
-                if(target.count === 0 || target.color === player || (target.color !== player && target.count === 1)) {
-                    if(!validMoves.includes(targetIndex)) validMoves.push(targetIndex);
-                }
-            }
-        }
-
-        function hasValidMoves(player) {
-            if(bar[player] > 0) {
-                calculateValidMoves(-1, player);
-                return validMoves.length > 0;
-            }
-            for(let i=0; i<24; i++) {
-                if(board[i].color === player && board[i].count > 0) {
-                    calculateValidMoves(i, player);
-                    if(validMoves.length > 0) return true;
-                }
-            }
-            return false;
-        }
-
-        function saveState() {
-            if(currentPlayer !== 'white' || !gameActive) return;
-            historyStack.push({
-                board: JSON.parse(JSON.stringify(board)),
-                bar: {...bar},
-                off: {...off},
-                dice: [...dice],
-                selectedPoint: selectedPoint,
-                validMoves: [...validMoves]
-            });
-            undoBtn.disabled = false;
-        }
-
-        function restoreState() {
-            if(historyStack.length === 0 || isProcessing) return;
-            const lastState = historyStack.pop();
-            board = JSON.parse(JSON.stringify(lastState.board));
-            bar = {...lastState.bar};
-            off = {...lastState.off};
-            dice = [...lastState.dice];
-            selectedPoint = lastState.selectedPoint;
-            validMoves = [...lastState.validMoves];
-            undoBtn.disabled = historyStack.length === 0;
-            updateDiceUI();
-            renderBoard();
-        }
-
-        function executeMove(from, to) {
-            const player = currentPlayer;
-            let isBearingOff = (to === 'off');
+            if (allMoves.length === 0) break;
             
-            if(isBearingOff) {
-                const distToEdge = player === 'white' ? (from + 1) : (24 - from);
-                let dieIdx = dice.indexOf(distToEdge);
-                
-                if(dieIdx === -1) {
-                    let candidates = dice.map((d, i) => ({val: d, idx: i})).filter(x => x.val >= distToEdge);
-                    if(candidates.length > 0) {
-                        candidates.sort((a,b) => a.val - b.val);
-                        dieIdx = candidates[0].idx;
-                    } else { dieIdx = 0; }
-                }
-                
-                dice.splice(dieIdx, 1);
-                board[from].count--;
-                if(board[from].count === 0) board[from].color = null;
-                off[player]++;
-                
-                if(off[player] === 15) {
-                    endGame(player);
-                    return;
-                }
-                
-            } else {
-                let distance = (from === -1) ? (player === 'white' ? (24 - to) : (to + 1)) : Math.abs(to - from);
-                let removed = false;
-                
-                if(distance <= 6 && dice.includes(distance)) {
-                    dice.splice(dice.indexOf(distance), 1);
-                    removed = true;
-                } else if(dice.length >= 2) {
-                    for(let i=0; i<dice.length; i++) {
-                        for(let j=i+1; j<dice.length; j++) {
-                            if(dice[i] + dice[j] === distance) {
-                                dice.splice(j, 1); dice.splice(i, 1);
-                                removed = true; break;
-                            }
-                        }
-                        if(removed) break;
-                    }
-                }
-                if(!removed && dice.length > 0) { dice.sort((a,b) => b-a); dice.shift(); }
-
-                if(from === -1) bar[player]--;
-                else { board[from].count--; if(board[from].count === 0) board[from].color = null; }
-
-                const target = board[to];
-                if(target.count === 1 && target.color !== player) {
-                    bar[target.color]++;
-                    target.count = 1; target.color = player;
-                } else {
-                    target.count++; target.color = player;
-                }
-            }
-            updateDiceUI();
+            // Pick random move
+            const move = allMoves[Math.floor(Math.random() * allMoves.length)];
+            executeMove(move.from, move.to);
+            moved = true;
+            render();
+            updateUI();
         }
-
-        function updateDiceUI() {
-            const icons = ['one', 'two', 'three', 'four', 'five', 'six'];
-            const d1 = (dice[0] && dice[0] >= 1 && dice[0] <= 6) ? dice[0] - 1 : 0;
-            const d2 = (dice[1] && dice[1] >= 1 && dice[1] <= 6) ? dice[1] - 1 : 0;
-            
-            dice1El.innerHTML = `<i class="fas fa-dice-${icons[d1]}"></i>`;
-            dice2El.innerHTML = dice.length > 1 ? `<i class="fas fa-dice-${icons[d2]}"></i>` : '';
-            
-            if(dice.length === 0) {
-                dice1El.classList.add('used');
-                dice2El.classList.add('used');
-            } else {
-                dice1El.classList.remove('used');
-                dice2El.classList.remove('used');
-            }
+        
+        if (!moved || state.dice.length === 0) {
+            state.isCpuThinking = false;
+            setTimeout(switchTurn, 800);
+        } else {
+            if (state.offBlack === 15) { endGame('black'); return; }
+            state.cpuTimeout = setTimeout(cpuPlay, 800);
         }
+    }
 
-        function rollDiceAction() {
-            if(!gameActive || currentPlayer !== 'white' || isProcessing) return;
-            historyStack = [];
-            undoBtn.disabled = true;
-            isProcessing = true;
-            rollBtn.disabled = true;
-            dice1El.classList.add('rolling');
-            dice2El.classList.add('rolling');
-            
-            setTimeout(() => {
-                dice1El.classList.remove('rolling');
-                dice2El.classList.remove('rolling');
-                
-                const d1 = Math.floor(Math.random() * 6) + 1;
-                const d2 = Math.floor(Math.random() * 6) + 1;
-                dice = [d1, d2];
-                if(d1 === d2) dice = [d1, d1, d1, d1];
-                
-                updateDiceUI();
-                isProcessing = false;
-                if(!hasValidMoves('white')) {
-                    setTimeout(() => switchTurn(), 1000);
-                } else {
-                    rollBtn.disabled = true;
-                }
-            }, 600);
+    function saveHistory() {
+        state.history.push({
+            board: [...state.board],
+            barWhite: state.barWhite,
+            barBlack: state.barBlack,
+            offWhite: state.offWhite,
+            offBlack: state.offBlack,
+            dice: [...state.dice]
+        });
+        DOM.undoBtn.disabled = false;
+    }
+
+    function undoMove() {
+        if (state.history.length === 0 || state.isCpuThinking) return;
+        const last = state.history.pop();
+        state.board = last.board;
+        state.barWhite = last.barWhite;
+        state.barBlack = last.barBlack;
+        state.offWhite = last.offWhite;
+        state.offBlack = last.offBlack;
+        state.dice = last.dice;
+        state.selectedPoint = null;
+        state.validMoves = [];
+        DOM.undoBtn.disabled = state.history.length === 0;
+        render();
+        updateUI();
+    }
+
+    // ============================================================
+    // ✅ SCORE CALCULATION & REGISTRATION (FIXED)
+    // ============================================================
+    function endGame(winner) {
+        state.gameActive = false;
+        state.isCpuThinking = false;
+        if (state.cpuTimeout) { clearTimeout(state.cpuTimeout); state.cpuTimeout = null; }
+        
+        let points = 1;
+        let msg = 'Normal Win (1 Point)';
+        
+        // Check for gammon/mars (backgammon)
+        if (winner === 'white' && state.offBlack === 0) {
+            let inWhiteHome = state.barBlack > 0;
+            for (let i = 18; i < 24; i++) if (state.board[i] < 0) inWhiteHome = true;
+            if (inWhiteHome) { points = 3; msg = 'MARS / BACKGAMMON! (3 Points)'; }
+            else { points = 2; msg = 'GAMMON! (2 Points)'; }
+        } else if (winner === 'black' && state.offWhite === 0) {
+            let inBlackHome = state.barWhite > 0;
+            for (let i = 0; i < 6; i++) if (state.board[i] > 0) inBlackHome = true;
+            if (inBlackHome) { points = 3; msg = 'MARS / BACKGAMMON! (3 Points)'; }
+            else { points = 2; msg = 'GAMMON! (2 Points)'; }
         }
-
-        function switchTurn() {
-            isProcessing = false;
-            currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
-            dice = []; selectedPoint = null; validMoves = []; historyStack = [];
-            undoBtn.disabled = true; rollBtn.disabled = currentPlayer !== 'white';
-            dice1El.innerHTML = '<i class="fas fa-dice-one"></i>';
-            dice2El.innerHTML = '<i class="fas fa-dice-two"></i>';
-            dice1El.classList.remove('used'); dice2El.classList.remove('used');
-            renderBoard();
-            if(currentPlayer === 'black') {
-                isProcessing = true;
-                setTimeout(cpuTurn, 1000);
-            }
+        
+        // ✅ 1. REGISTER THE SCORE
+        if (winner === 'white') {
+            state.playerScore += points;
+        } else {
+            state.cpuScore += points;
         }
-
-        function cpuTurn() {
-            if(!gameActive) return;
-            
-            if(dice.length === 0) {
-                const d1 = Math.floor(Math.random() * 6) + 1;
-                const d2 = Math.floor(Math.random() * 6) + 1;
-                dice = d1 === d2 ? [d1,d1,d1,d1] : [d1,d2];
-                updateDiceUI();
-            }
-
-            let moved = false; 
-            let attempts = 0;
-            
-            while(!moved && attempts < 50 && dice.length > 0) {
-                attempts++;
-                let source = -1;
-                if(bar.black > 0) source = -1;
-                else {
-                    const occupied = [];
-                    board.forEach((p, i) => { if(p.color==='black' && p.count>0) occupied.push(i); });
-                    if(occupied.length === 0) break;
-                    source = occupied[Math.floor(Math.random() * occupied.length)];
-                }
-                
-                calculateValidMoves(source, 'black');
-                if(validMoves.length > 0) {
-                    let dest = validMoves[Math.floor(Math.random() * validMoves.length)];
-                    if(validMoves.includes('off')) dest = 'off';
-                    executeMove(source, dest);
-                    moved = true; 
-                    renderBoard();
-                }
-            }
-
-            if(!moved || dice.length === 0) {
-                setTimeout(() => switchTurn(), 800);
-            } else {
-                setTimeout(() => cpuTurn(), 800);
-            }
+        
+        // ✅ 2. SAVE TO LOCAL STORAGE SO IT PERSISTS ACROSS HANDS
+        localStorage.setItem('bgScores', JSON.stringify({
+            player: state.playerScore, 
+            cpu: state.cpuScore
+        }));
+        
+        // ✅ 3. UPDATE UI IMMEDIATELY
+        updateUI();
+        
+        // Show result overlay
+        if (state.playerScore >= 5) {
+            DOM.resultTitle.textContent = '🏆 YOU WIN THE MATCH! 🏆';
+            DOM.resultTitle.style.color = '#f4d06f';
+            DOM.resultMsg.textContent = `Final Score: You ${state.playerScore} - CPU ${state.cpuScore}`;
+        } else if (state.cpuScore >= 5) {
+            DOM.resultTitle.textContent = '💀 CPU WINS THE MATCH 💀';
+            DOM.resultTitle.style.color = '#a0aec0';
+            DOM.resultMsg.textContent = `Final Score: You ${state.playerScore} - CPU ${state.cpuScore}`;
+        } else {
+            DOM.resultTitle.textContent = winner === 'white' ? `YOU WIN! +${points} Point(s)` : `CPU WINS! +${points} Point(s)`;
+            DOM.resultTitle.style.color = winner === 'white' ? '#f4d06f' : '#a0aec0';
+            DOM.resultMsg.textContent = msg;
         }
+        
+        DOM.overlay.classList.add('active');
+    }
 
-        function endGame(winner) {
-            gameActive = false;
-            isProcessing = false;
-            const loser = winner === 'white' ? 'black' : 'white';
-            
-            let points = 1;
-            let winType = "Normal Win";
-            
-            if(off[loser] === 0) {
-                let hasPiecesInWinnerHome = false;
-                
-                if(winner === 'white') {
-                    if(bar.black > 0) hasPiecesInWinnerHome = true;
-                    for(let i=0; i<=5; i++) {
-                        if(board[i].color === 'black' && board[i].count > 0) {
-                            hasPiecesInWinnerHome = true;
-                            break;
-                        }
-                    }
-                } else {
-                    if(bar.white > 0) hasPiecesInWinnerHome = true;
-                    for(let i=18; i<=23; i++) {
-                        if(board[i].color === 'white' && board[i].count > 0) {
-                            hasPiecesInWinnerHome = true;
-                            break;
-                        }
-                    }
-                }
-                
-                if(hasPiecesInWinnerHome) {
-                    points = 3; winType = "MARS! (Triple)";
-                } else {
-                    points = 2; winType = "GAMMON! (Double)";
-                }
-            }
-
-            if(winner === 'white') stats.player += points;
-            else stats.cpu += points;
-            
-            localStorage.setItem('bgStats', JSON.stringify(stats));
-            updateStatsUI();
-
-            if (stats.player >= 5) {
-                resultTitle.innerText = "🏆 YOU WIN THE MATCH! ";
-                resultTitle.style.color = "#f4d06f";
-                resultMsg.innerText = "Congratulations! You reached 5 points first.";
-            } else if (stats.cpu >= 5) {
-                resultTitle.innerText = "💀 CPU WINS THE MATCH! 💀";
-                resultTitle.style.color = "#a0aec0";
-                resultMsg.innerText = "The CPU reached 5 points first.";
-            } else {
-                if(winner === 'white') {
-                    resultTitle.innerText = `YOU WIN! (+${points})`;
-                    resultTitle.style.color = "#f4d06f";
-                    resultMsg.innerText = winType;
-                } else {
-                    resultTitle.innerText = `CPU WINS! (+${points})`;
-                    resultTitle.style.color = "#a0aec0";
-                    resultMsg.innerText = winType;
-                }
-            }
-            
-            overlay.classList.add('active');
+    // ============================================================
+    // ✅ NEW GAME LOGIC (FIXED TO KEEP SCORE)
+    // ============================================================
+    function resetGame() {
+        // Stop CPU
+        state.isCpuThinking = false;
+        if (state.cpuTimeout) { clearTimeout(state.cpuTimeout); state.cpuTimeout = null; }
+        
+        // ✅ FIX: Do NOT reset scores here! 
+        // "New Game" should start a new hand but KEEP the accumulated match score.
+        // Scores only reset if someone reaches 5 and we want to start a fresh match.
+        if (state.playerScore >= 5 || state.cpuScore >= 5) {
+            state.playerScore = 0;
+            state.cpuScore = 0;
+            localStorage.setItem('bgScores', JSON.stringify({player: 0, cpu: 0}));
         }
-
-        // ✅ FIXED: NEW GAME BUTTON NOW WORKS PROPERLY
-        function resetGame() {
-            // Stop any ongoing CPU turn immediately
-            isProcessing = false;
-            
-            if (stats.player >= 5 || stats.cpu >= 5) {
-                stats.player = 0;
-                stats.cpu = 0;
-                localStorage.setItem('bgStats', JSON.stringify(stats));
-                updateStatsUI();
-            }
-
-            gameActive = true; 
-            currentPlayer = 'white'; 
-            dice = [];
-            selectedPoint = null; 
-            validMoves = []; 
-            historyStack = [];
-            undoBtn.disabled = true; 
-            rollBtn.disabled = false;
-            overlay.classList.remove('active');
-            
-            // Reset dice display
-            dice1El.innerHTML = '<i class="fas fa-dice-one"></i>';
-            dice2El.innerHTML = '<i class="fas fa-dice-two"></i>';
-            dice1El.classList.remove('used', 'rolling');
-            dice2El.classList.remove('used', 'rolling');
-            
-            // Initialize fresh board
-            initBoard();
-        }
-
-        // Event listeners
-        rollBtn.addEventListener('click', rollDiceAction);
-        undoBtn.addEventListener('click', restoreState);
-        newGameBtn.addEventListener('click', resetGame);
-        playAgainBtn.addEventListener('click', resetGame);
-
-        // Start game on load
-        gameActive = true;
+        
+        DOM.overlay.classList.remove('active');
         initBoard();
-        updateStatsUI();
+    }
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
+    DOM.rollBtn.addEventListener('click', rollDice);
+    DOM.undoBtn.addEventListener('click', undoMove);
+    DOM.newGameBtn.addEventListener('click', resetGame);
+    DOM.playAgainBtn.addEventListener('click', resetGame);
+    DOM.barWhite.addEventListener('click', () => {
+        if (state.currentPlayer === 'white' && state.barWhite > 0 && state.dice.length > 0) {
+            state.selectedPoint = -1;
+            state.validMoves = getValidMoves(-1, 'white');
+            render();
+        }
+    });
+
+    // Start
+    initBoard();
     </script>
 </body>
 </html>
