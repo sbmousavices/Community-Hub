@@ -29,13 +29,51 @@
             background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent 50%);
             overflow-x: hidden;
         }
+
+        /* ✅ UNIFIED NAVIGATION BAR STYLES */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
             background: var(--nav-bg); backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border); z-index: 1000;
-            display: flex; align-items: center; justify-content: center; padding: 0 5%;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 5%;
         }
-        .nav-logo { color: var(--accent); font-weight: 700; font-size: 1.2rem; text-decoration: none; }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .nav-logo img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); }
+        .nav-links { display: flex; gap: 0.8rem; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .btn-signin { display: inline-flex !important; align-items: center; gap: 8px; padding: 0.6rem 1.5rem !important; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent) !important; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .btn-signin:hover { background: var(--accent); color: var(--bg-primary) !important; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer; }
+
+        /* ✅ BACK TO MAIN PAGE BUTTON (TOP RIGHT) */
+        .back-to-main-btn {
+            position: fixed;
+            top: calc(var(--nav-height) + 25px);
+            right: 5%;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 900;
+        }
+        .back-to-main-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .back-to-main-btn i { font-size: 0.85rem; }
+
         .game-wrapper {
             display: flex; flex-direction: column; align-items: center; gap: 15px;
             width: 100%; max-width: 600px; padding: 0 20px;
@@ -148,16 +186,42 @@
         #overlay h2 { color: var(--accent); font-size: 2.2rem; margin-bottom: 15px; text-shadow: 0 0 20px var(--accent); }
         #overlay p { color: #fff; font-size: 1.1rem; margin-bottom: 25px; }
         .controls-hint { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; text-align: center; margin-top: 5px;}
+        
         @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
             .game-header h1 { font-size: 1.4rem; }
             .board-container { padding: 6px; gap: 4px; }
             .bar-area { width: 30px; }
             .checker { width: 90%; }
+            .back-to-main-btn { top: calc(var(--nav-height) + 20px); right: 15px; padding: 6px 14px; font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
-    <nav><a href="#" class="nav-logo"><i class="fas fa-dice"></i> Gold Backgammon</a></nav>
+    <!-- ✅ UNIFIED NAVIGATION BAR -->
+    <nav>
+        <a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="nav-logo">
+            <img src="https://sbmousavices.github.io/Industrial-Tools/icon-192.png" alt="BM Planning Logo"><span>Home</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="https://sbmousavices.github.io/Resume/Resume_Builder_English.html">Resume Builder</a></li>
+            <li><a href="https://sbmousavices.github.io/Theme/index.html">Web Design</a></li>
+            <li><a href="https://sbmousavices.github.io/NFT/">NFT Gallery</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/">Products</a></li>
+            <li><a href="https://sbmousavices.github.io/Articles/">Articles</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/Community.html">Community</a></li>
+            <li><a href="hub.html" class="active">Hub</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html#contact">Contact</a></li>
+            <li><a href="https://sbmousavices.github.io/Industrial-Tools/EnglishInfo.html" class="btn-signin"><i class="fas fa-user"></i> Sign In</a></li>
+        </ul>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- ✅ BACK TO MAIN PAGE BUTTON -->
+    <a href="https://sbmousavices.github.io/Community-Hub/game-index.html" class="back-to-main-btn">
+        <i class="fas fa-arrow-left"></i> Back to Main Page
+    </a>
     
     <div class="game-wrapper">
         <div class="game-header"><h1>Gold Backgammon</h1></div>
